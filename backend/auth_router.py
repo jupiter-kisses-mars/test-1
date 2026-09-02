@@ -10,25 +10,35 @@ router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
 @router.post("/register", response_model=schemas.UserResponse, status_code=status.HTTP_201_CREATED)
 def register(user_data: schemas.UserCreate, db: Session = Depends(get_db)):
-    # Check if user with email already exists
-    existing_user = db.query(models.User).filter(models.User.email == user_data.email).first()
-    if existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email address is already registered"
+    try:
+        # Check if user with email already exists
+        existing_user = db.query(models.User).filter(models.User.email == user_data.email).first()
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email address is already registered"
+            )
+        
+        # Hash password and save new user
+        hashed_pwd = security.hash_password(user_data.password)
+        new_user = models.User(
+            full_name=user_data.full_name,
+            email=user_data.email,
+            hashed_password=hashed_pwd
         )
-    
-    # Hash password and save new user
-    hashed_pwd = security.hash_password(user_data.password)
-    new_user = models.User(
-        full_name=user_data.full_name,
-        email=user_data.email,
-        hashed_password=hashed_pwd
-    )
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    return new_user
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+        return new_user
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Registration error: {str(e)}"
+        )
 
 @router.post("/login", response_model=schemas.Token)
 def login(user_credentials: schemas.UserLogin, db: Session = Depends(get_db)):

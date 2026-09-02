@@ -15,6 +15,7 @@ import {
   Receipt,
   MessageSquare
 } from 'lucide-react';
+import { registerUser, loginUser } from '../api/auth';
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -30,6 +31,7 @@ export default function AuthPage() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [currentUser, setCurrentUser] = useState(null);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -37,8 +39,8 @@ export default function AuthPage() {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: '' }));
+    if (errors[name] || errors.api) {
+      setErrors((prev) => ({ ...prev, [name]: '', api: '' }));
     }
   };
 
@@ -72,14 +74,36 @@ export default function AuthPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validate()) {
-      setLoading(true);
-      setTimeout(() => {
-        setLoading(false);
-        setSubmitted(true);
-      }, 1200);
+    if (!validate()) return;
+
+    setLoading(true);
+    setErrors({});
+
+    try {
+      if (isLogin) {
+        // Call FastAPI Login API
+        await loginUser({
+          email: formData.email,
+          password: formData.password
+        });
+        setCurrentUser({ email: formData.email });
+      } else {
+        // Call FastAPI Register API
+        const user = await registerUser({
+          full_name: formData.fullName,
+          email: formData.email,
+          password: formData.password,
+          confirm_password: formData.confirmPassword
+        });
+        setCurrentUser(user);
+      }
+      setSubmitted(true);
+    } catch (err) {
+      setErrors({ api: err.message || 'Something went wrong. Please try again.' });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -207,7 +231,8 @@ export default function AuthPage() {
                 {isLogin ? 'Logged in successfully!' : 'Account created successfully!'}
               </h3>
               <p className="text-sm text-slate-300">
-                Welcome to <span className="font-semibold text-indigo-300">TripMate</span>. Redirecting to your trip dashboard...
+                Welcome to <span className="font-semibold text-indigo-300">TripMate</span>
+                {currentUser?.full_name && `, ${currentUser.full_name}`}! Redirecting to your trip dashboard...
               </p>
               <button
                 onClick={() => setSubmitted(false)}
@@ -218,6 +243,13 @@ export default function AuthPage() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
+              
+              {/* API Error Banner */}
+              {errors.api && (
+                <div className="p-3 bg-rose-950/70 border border-rose-500/50 rounded-xl text-xs text-rose-300 text-center font-medium">
+                  {errors.api}
+                </div>
+              )}
               
               {/* OAuth2 Social Logins */}
               <div className="grid grid-cols-2 gap-3 mb-2">
