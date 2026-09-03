@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Calendar, MapPin, Users, Plus, DollarSign, Map, MessageSquare, Compass, CheckCircle } from 'lucide-react';
 import { addTripMember } from '../../api/trips';
+import ExpenseCalculatorView from './ExpenseCalculatorView';
 
 export default function TripDetailsView({ trip, onBack, onUpdateTrip }) {
   const [inviteEmail, setInviteEmail] = useState('');
@@ -74,11 +75,11 @@ export default function TripDetailsView({ trip, onBack, onUpdateTrip }) {
         {/* Main Content Area */}
         <div className="lg:col-span-2 space-y-6">
           {/* Navigation Tabs */}
-          <div className="flex space-x-2 border-b border-slate-200 pb-2">
+          <div className="flex space-x-2 border-b border-slate-200 pb-2 overflow-x-auto">
             {[
               { id: 'overview', label: 'Overview', icon: Compass },
+              { id: 'expenses', label: 'Expense Calculator', icon: DollarSign, badge: 'Live' },
               { id: 'itinerary', label: 'Itinerary (Feature 2)', icon: Map, badge: 'Next' },
-              { id: 'expenses', label: 'Expenses (Feature 3)', icon: DollarSign, badge: 'Next' },
               { id: 'places', label: 'Places (Feature 4)', icon: MapPin, badge: 'Next' },
               { id: 'chat', label: 'Chat (Feature 5)', icon: MessageSquare, badge: 'Next' },
             ].map((tab) => {
@@ -88,7 +89,7 @@ export default function TripDetailsView({ trip, onBack, onUpdateTrip }) {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl font-medium text-xs transition-all ${
+                  className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl font-medium text-xs transition-all shrink-0 ${
                     isActive
                       ? 'bg-teal-600 text-white shadow-md'
                       : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
@@ -101,10 +102,30 @@ export default function TripDetailsView({ trip, onBack, onUpdateTrip }) {
             })}
           </div>
 
-          {activeTab === 'overview' ? (
+          {activeTab === 'expenses' ? (
+            <ExpenseCalculatorView />
+          ) : activeTab === 'overview' ? (
             <div className="space-y-6">
               {/* Feature Modules Status Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div
+                  onClick={() => setActiveTab('expenses')}
+                  className="bg-white p-5 rounded-2xl border border-teal-200 shadow-sm hover:shadow-md transition-all cursor-pointer"
+                >
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="p-2 bg-emerald-50 text-emerald-600 rounded-xl">
+                      <DollarSign className="w-5 h-5" />
+                    </div>
+                    <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">
+                      Live & 100% Connected
+                    </span>
+                  </div>
+                  <h4 className="font-bold text-slate-800 text-sm">Expense Calculator</h4>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Manage members, add expenses, equal/custom split, preview calculations, balances & settlements.
+                  </p>
+                </div>
+
                 <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
                   <div className="flex justify-between items-start mb-3">
                     <div className="p-2 bg-teal-50 text-teal-600 rounded-xl">
@@ -117,21 +138,6 @@ export default function TripDetailsView({ trip, onBack, onUpdateTrip }) {
                   <h4 className="font-bold text-slate-800 text-sm">2. Itinerary Planner</h4>
                   <p className="text-xs text-slate-500 mt-1">
                     Organize activities by day, drag/reorder time slots & locations.
-                  </p>
-                </div>
-
-                <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-                  <div className="flex justify-between items-start mb-3">
-                    <div className="p-2 bg-emerald-50 text-emerald-600 rounded-xl">
-                      <DollarSign className="w-5 h-5" />
-                    </div>
-                    <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-amber-100 text-amber-800">
-                      Coming Next
-                    </span>
-                  </div>
-                  <h4 className="font-bold text-slate-800 text-sm">3. Expense Splitter</h4>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Track shared costs, select who paid & calculate who owes whom.
                   </p>
                 </div>
 

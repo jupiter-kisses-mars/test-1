@@ -22,10 +22,11 @@ def test_register_login_me_flow():
     mismatch_res = client.post("/api/auth/register", json=mismatch_payload)
     assert mismatch_res.status_code == 422  # Validation Error
 
-    # 2. Test Successful Registration
+    import uuid
+    test_email = f"phoobesh_{uuid.uuid4().hex[:8]}@example.com"
     user_payload = {
         "full_name": "Phoobesh User",
-        "email": "phoobesh_auth_test_clean@example.com",
+        "email": test_email,
         "password": "securepassword123",
         "confirm_password": "securepassword123"
     }
@@ -38,7 +39,7 @@ def test_register_login_me_flow():
 
     # 3. Test Login
     login_payload = {
-        "email": "phoobesh_auth_test_clean@example.com",
+        "email": test_email,
         "password": "securepassword123"
     }
     response = client.post("/api/auth/login", json=login_payload)
