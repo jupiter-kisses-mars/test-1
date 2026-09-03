@@ -63,13 +63,14 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
     setError('');
     try {
       const [uData, eData, bData, sData, sumData, tripsData] = await Promise.all([
-        fetchUsers(),
-        fetchExpenses(),
-        fetchBalances(),
-        fetchSettlements(),
-        fetchDashboardSummary(),
+        fetchUsers().catch(() => []),
+        fetchExpenses().catch(() => []),
+        fetchBalances().catch(() => ({ balances: [] })),
+        fetchSettlements().catch(() => ({ settlements: [] })),
+        fetchDashboardSummary().catch(() => null),
         fetchTrips().catch(() => [])
       ]);
+
 
       setUsers(uData);
       setExpenses(eData);
