@@ -60,9 +60,11 @@ export default function DashboardView({ user, onLogout }) {
         <div className="max-w-6xl mx-auto">
           <TripDetailsView
             trip={selectedTrip}
+            currentUser={user}
             onBack={() => setSelectedTrip(null)}
             onUpdateTrip={handleUpdateTrip}
           />
+
         </div>
       </div>
     );

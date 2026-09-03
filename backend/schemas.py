@@ -84,3 +84,57 @@ class TripResponse(TripBase):
 
     model_config = ConfigDict(from_attributes=True)
 
+# Itinerary Item Schemas
+class ItineraryItemBase(BaseModel):
+    day_number: int = 1
+    activity_date: Optional[str] = None
+    title: str
+    start_time: Optional[str] = None
+    end_time: Optional[str] = None
+    location: Optional[str] = None
+    notes: Optional[str] = None
+    order_index: Optional[int] = 0
+
+class ItineraryItemCreate(ItineraryItemBase):
+    pass
+
+class ItineraryItemUpdate(BaseModel):
+    day_number: Optional[int] = None
+    activity_date: Optional[str] = None
+    title: Optional[str] = None
+    start_time: Optional[str] = None
+    end_time: Optional[str] = None
+    location: Optional[str] = None
+    notes: Optional[str] = None
+    order_index: Optional[int] = None
+
+class ItineraryItemResponse(ItineraryItemBase):
+    id: int
+    trip_id: int
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+# Chat Schemas
+class ChatSender(BaseModel):
+    id: int
+    full_name: str
+    email: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+class ChatMessageCreate(BaseModel):
+    message: str
+
+class ChatMessageResponse(BaseModel):
+    id: int
+    trip_id: int
+    sender_id: int
+    message: str
+    created_at: datetime
+    sender: Optional[ChatSender] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+
