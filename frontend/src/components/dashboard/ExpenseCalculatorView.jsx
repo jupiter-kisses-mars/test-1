@@ -78,10 +78,11 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
       setSummary(sumData);
       setTrips(tripsData);
 
-      // Select default trip (e.g. 'qwer' or first trip) if not set
-      if (!selectedTripId && tripsData.length > 0) {
-        const qwerTrip = tripsData.find((t) => t.title.toLowerCase() === 'qwer');
-        setSelectedTripId(qwerTrip ? qwerTrip.id.toString() : tripsData[0].id.toString());
+      // Prioritize propTripId if passed, else select default trip
+      if (propTripId) {
+        setSelectedTripId(propTripId.toString());
+      } else if (!selectedTripId && tripsData.length > 0) {
+        setSelectedTripId(tripsData[0].id.toString());
       }
 
       // Default paidBy to first user if available and not set
@@ -97,7 +98,8 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
 
   useEffect(() => {
     loadAllData();
-  }, []);
+  }, [propTripId]);
+
 
   // Filtered Collaborators for the selected trip or all users
   const activeTrip = trips.find((t) => t.id.toString() === selectedTripId.toString());
@@ -105,15 +107,17 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
   const currentCollaborators = activeTrip?.members?.length > 0
     ? activeTrip.members.map((m) => {
         // Find matching user object or construct from member
-        const userObj = users.find((u) => u.id === m.id || u.name === m.full_name);
+        const userObj = users.find((u) => u.id === m.id || (u.name && u.name === m.full_name) || (u.full_name && u.full_name === m.full_name));
+        const displayName = m.full_name || (userObj ? (userObj.name || userObj.full_name) : 'Collaborator');
         return {
           id: userObj ? userObj.id : m.id,
-          name: m.full_name || (userObj ? userObj.name : 'Collaborator'),
+          name: displayName,
           email: m.email,
           role: m.role
         };
       })
-    : users.map((u) => ({ id: u.id, name: u.name, role: 'member' }));
+    : users.map((u) => ({ id: u.id, name: u.name || u.full_name || 'Collaborator', role: 'member' }));
+
 
   // Auto-initialize selected participants when collaborators change
   useEffect(() => {
@@ -415,12 +419,20 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
             <div className="flex space-x-2">
               <input
                 type="text"
-                placeholder="e.g. Vishal, Phoobesh"
+                list="db-users-list"
+                placeholder="Type name or choose existing..."
                 value={newMemberName}
                 onChange={(e) => setNewMemberName(e.target.value)}
-                className="flex-1 px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="flex-1 px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-800 bg-white placeholder-slate-400 font-medium"
                 required
               />
+              <datalist id="db-users-list">
+                {users.map((u) => (
+                  <option key={u.id} value={u.name || u.full_name}>
+                    {u.email ? `${u.name || u.full_name} (${u.email})` : (u.name || u.full_name)}
+                  </option>
+                ))}
+              </datalist>
               <button
                 type="submit"
                 disabled={addingUser}
@@ -431,6 +443,7 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
               </button>
             </div>
           </form>
+
 
           {/* Collaborators List */}
           <div className="space-y-2 max-h-64 overflow-y-auto">
@@ -481,7 +494,7 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
                   placeholder="e.g. Hotel Booking, Dinner, Cab Fare"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-800 bg-white placeholder-slate-400 font-medium"
                   required
                 />
               </div>
@@ -494,11 +507,12 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
                   placeholder="e.g. 2000.00"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-800 bg-white placeholder-slate-400 font-medium"
                   required
                 />
               </div>
             </div>
+
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -584,8 +598,9 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
                             placeholder="Share (₹)"
                             value={selectedParticipants[c.id]?.share || ''}
                             onChange={(e) => handleShareChange(c.id, e.target.value)}
-                            className="w-24 px-2 py-1 text-xs rounded-lg border border-slate-200 focus:ring-1 focus:ring-teal-500 text-right"
+                            className="w-24 px-2 py-1 text-xs rounded-lg border border-slate-200 focus:ring-1 focus:ring-teal-500 text-right text-slate-800 bg-white placeholder-slate-400 font-medium"
                           />
+
                         )}
                       </div>
                     );

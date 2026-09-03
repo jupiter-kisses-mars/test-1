@@ -16,7 +16,8 @@ from expense.utils.money import round_money
 def calculate_user_balances(db: Session) -> BalancesResponse:
     users = db.query(User).order_by(User.id.asc()).all()
     user_balances: Dict[int, Decimal] = {u.id: Decimal("0.00") for u in users}
-    user_names: Dict[int, str] = {u.id: u.name for u in users}
+    user_names: Dict[int, str] = {u.id: (getattr(u, "name", None) or getattr(u, "full_name", None) or f"User #{u.id}") for u in users}
+
 
     expenses = db.query(Expense).options(joinedload(Expense.participants)).all()
 
@@ -88,12 +89,13 @@ def calculate_settlements(db: Session) -> SettlementsResponse:
                 )
             )
 
-        debtor["amount"] -= settle_amt
-        creditor["amount"] -= settle_amt
+        debtor["amount"] = round_money(debtor["amount"] - settle_amt)
+        creditor["amount"] = round_money(creditor["amount"] - settle_amt)
 
-        if debtor["amount"] <= Decimal("0.001"):
+        if debtor["amount"] <= Decimal("0.00"):
             d_idx += 1
-        if creditor["amount"] <= Decimal("0.001"):
+        if creditor["amount"] <= Decimal("0.00"):
             c_idx += 1
+
 
     return SettlementsResponse(settlements=settlements)

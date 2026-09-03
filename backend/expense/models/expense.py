@@ -7,6 +7,7 @@ class Expense(Base):
     __tablename__ = "expenses"
 
     id = Column(Integer, primary_key=True, index=True)
+    trip_id = Column(Integer, ForeignKey("trips.id", ondelete="CASCADE"), nullable=True, index=True)
     description = Column(String(255), nullable=False)
     amount = Column(Numeric(12, 2), nullable=False)
     paid_by = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
@@ -15,8 +16,10 @@ class Expense(Base):
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Relationships
+    trip = relationship("Trip", backref="expenses")
     payer = relationship("User", back_populates="paid_expenses")
     participants = relationship("ExpenseParticipant", back_populates="expense", cascade="all, delete-orphan")
+
 
 
 class ExpenseParticipant(Base):

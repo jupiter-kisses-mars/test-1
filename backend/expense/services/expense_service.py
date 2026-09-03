@@ -92,7 +92,8 @@ def calculate_expense_shares(
                 CalculatedShare(user_id=p.user_id, share_amount=share_val)
             )
 
-        if round_money(total_custom_share) != amount:
+        total_custom_share = round_money(total_custom_share)
+        if total_custom_share != amount:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=(
@@ -100,6 +101,7 @@ def calculate_expense_shares(
                     f"total expense amount ({amount})"
                 )
             )
+
 
     else:
         raise HTTPException(

@@ -8,16 +8,16 @@ backend_dir = str(Path(__file__).resolve().parent)
 if backend_dir not in sys.path:
     sys.path.insert(0, backend_dir)
 
-from database import engine as auth_engine, Base as AuthBase
+from database import engine, Base, auto_migrate_database
 import auth_router
 import trips_router
 
-from expense.database import engine as expense_engine, Base as ExpenseBase
 from expense.routes import users, expenses, balances, dashboard as expense_dashboard
 
-# Create database tables for all modules
-AuthBase.metadata.create_all(bind=auth_engine)
-ExpenseBase.metadata.create_all(bind=expense_engine)
+# Create database tables and auto-migrate missing columns for all modules
+auto_migrate_database(engine, Base)
+
+
 
 app = FastAPI(
     title="TripMate & Expense Calculator API",
@@ -35,6 +35,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
 
 # Include Routers
 app.include_router(auth_router.router)
