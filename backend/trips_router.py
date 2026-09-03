@@ -18,7 +18,8 @@ def format_trip_response(trip: models.Trip, db: Session) -> dict:
                 "id": user.id,
                 "full_name": user.full_name,
                 "email": user.email,
-                "role": tm.role
+                "role": tm.role,
+                "status": getattr(tm, "status", "accepted") or "accepted"
             })
 
     return {
@@ -61,7 +62,8 @@ def create_trip(trip_data: schemas.TripCreate, current_user: models.User = Depen
     owner_membership = models.TripMember(
         trip_id=new_trip.id,
         user_id=current_user.id,
-        role="owner"
+        role="owner",
+        status="accepted"
     )
     db.add(owner_membership)
 
@@ -72,7 +74,8 @@ def create_trip(trip_data: schemas.TripCreate, current_user: models.User = Depen
                 member_entry = models.TripMember(
                     trip_id=new_trip.id,
                     user_id=invited_user.id,
-                    role="member"
+                    role="member",
+                    status="pending"
                 )
                 db.add(member_entry)
 
@@ -141,14 +144,38 @@ def add_trip_member(trip_id: int, member_data: schemas.AddMemberSchema, current_
     ).first()
 
     if existing_membership:
-        raise HTTPException(status_code=400, detail="User is already a member of this trip")
+        raise HTTPException(status_code=400, detail="User is already invited or a member of this trip")
 
     new_membership = models.TripMember(
         trip_id=trip_id,
         user_id=user_to_add.id,
-        role="member"
+        role="member",
+        status="pending"
     )
     db.add(new_membership)
     db.commit()
 
+    return format_trip_response(trip, db)
+
+@router.put("/{trip_id}/invitation", response_model=schemas.TripResponse)
+def respond_to_invitation(trip_id: int, status_update: schemas.TripMemberStatusUpdate, current_user: models.User = Depends(security.get_current_user), db: Session = Depends(get_db)):
+    membership = db.query(models.TripMember).filter(
+        models.TripMember.trip_id == trip_id,
+        models.TripMember.user_id == current_user.id
+    ).first()
+
+    if not membership:
+        raise HTTPException(status_code=404, detail="Invitation not found for this trip")
+
+    if status_update.status not in ["accepted", "rejected"]:
+        raise HTTPException(status_code=400, detail="Invalid status. Must be 'accepted' or 'rejected'")
+
+    if status_update.status == "rejected":
+        db.delete(membership)
+    else:
+        membership.status = "accepted"
+    
+    db.commit()
+    
+    trip = db.query(models.Trip).filter(models.Trip.id == trip_id).first()
     return format_trip_response(trip, db)

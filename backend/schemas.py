@@ -46,8 +46,12 @@ class TripMemberUser(BaseModel):
     full_name: str
     email: EmailStr
     role: str
+    status: str = "accepted"
 
     model_config = ConfigDict(from_attributes=True)
+
+class TripMemberStatusUpdate(BaseModel):
+    status: str # 'accepted' or 'rejected'
 
 # Trip Base Schema
 class TripBase(BaseModel):
