@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Calendar, MapPin, Users, Plus, DollarSign, Map, MessageSquare, Compass, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Calendar, MapPin, Users, Plus, DollarSign, Map, MessageSquare, Compass } from 'lucide-react';
 import { addTripMember } from '../../api/trips';
 import ExpenseCalculatorView from './ExpenseCalculatorView';
+import ItineraryView from './ItineraryView';
+import ChatView from './ChatView';
 
-export default function TripDetailsView({ trip, onBack, onUpdateTrip }) {
+export default function TripDetailsView({ trip, currentUser, onBack, onUpdateTrip }) {
   const [inviteEmail, setInviteEmail] = useState('');
   const [addingMember, setAddingMember] = useState(false);
   const [memberMessage, setMemberMessage] = useState({ type: '', text: '' });
@@ -46,7 +48,7 @@ export default function TripDetailsView({ trip, onBack, onUpdateTrip }) {
         <div className="relative z-10 flex justify-between items-center">
           <button
             onClick={onBack}
-            className="flex items-center space-x-2 px-4 py-2 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md transition-all text-xs font-semibold"
+            className="flex items-center space-x-2 px-4 py-2 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md transition-all text-xs font-semibold cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Dashboard</span>
@@ -78,9 +80,9 @@ export default function TripDetailsView({ trip, onBack, onUpdateTrip }) {
         {[
           { id: 'overview', label: 'Overview', icon: Compass },
           { id: 'expenses', label: 'Expense Calculator', icon: DollarSign, badge: 'Live' },
-          { id: 'itinerary', label: 'Itinerary (Feature 2)', icon: Map, badge: 'Next' },
+          { id: 'itinerary', label: 'Itinerary Planner', icon: Map, badge: 'Live' },
           { id: 'places', label: 'Places (Feature 4)', icon: MapPin, badge: 'Next' },
-          { id: 'chat', label: 'Chat (Feature 5)', icon: MessageSquare, badge: 'Next' },
+          { id: 'chat', label: 'Group Chat', icon: MessageSquare, badge: 'Live' },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -105,6 +107,14 @@ export default function TripDetailsView({ trip, onBack, onUpdateTrip }) {
       {activeTab === 'expenses' ? (
         <div className="w-full pt-2">
           <ExpenseCalculatorView tripId={trip.id} />
+        </div>
+      ) : activeTab === 'itinerary' ? (
+        <div className="w-full pt-2">
+          <ItineraryView trip={trip} />
+        </div>
+      ) : activeTab === 'chat' ? (
+        <div className="w-full pt-2">
+          <ChatView trip={trip} currentUser={currentUser} />
         </div>
       ) : (
         /* Grid Content Layout for Overview & Other Tabs */
@@ -133,18 +143,21 @@ export default function TripDetailsView({ trip, onBack, onUpdateTrip }) {
                     </p>
                   </div>
 
-                  <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                  <div
+                    onClick={() => setActiveTab('itinerary')}
+                    className="bg-white p-5 rounded-2xl border border-teal-200 shadow-sm hover:shadow-md transition-all cursor-pointer"
+                  >
                     <div className="flex justify-between items-start mb-3">
                       <div className="p-2 bg-teal-50 text-teal-600 rounded-xl">
                         <Map className="w-5 h-5" />
                       </div>
-                      <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-amber-100 text-amber-800">
-                        Coming Next
+                      <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">
+                        Live & Active
                       </span>
                     </div>
                     <h4 className="font-bold text-slate-800 text-sm">2. Itinerary Planner</h4>
                     <p className="text-xs text-slate-500 mt-1">
-                      Organize activities by day, drag/reorder time slots & locations.
+                      Organize activities by day, timeslots, locations & reorder timeline schedules.
                     </p>
                   </div>
 
@@ -163,13 +176,16 @@ export default function TripDetailsView({ trip, onBack, onUpdateTrip }) {
                     </p>
                   </div>
 
-                  <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                  <div
+                    onClick={() => setActiveTab('chat')}
+                    className="bg-white p-5 rounded-2xl border border-purple-200 shadow-sm hover:shadow-md transition-all cursor-pointer"
+                  >
                     <div className="flex justify-between items-start mb-3">
                       <div className="p-2 bg-purple-50 text-purple-600 rounded-xl">
                         <MessageSquare className="w-5 h-5" />
                       </div>
-                      <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-amber-100 text-amber-800">
-                        Coming Next
+                      <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">
+                        Live & Connected
                       </span>
                     </div>
                     <h4 className="font-bold text-slate-800 text-sm">5. Trip Collaboration Chat</h4>
@@ -231,6 +247,11 @@ export default function TripDetailsView({ trip, onBack, onUpdateTrip }) {
                         </span>
                       )}
                     </div>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
+                      member.role === 'owner' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-600'
+                    }`}>
+                      {member.role}
+                    </span>
                   </div>
                 ))}
               </div>

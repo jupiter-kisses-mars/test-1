@@ -1,5 +1,5 @@
 import os
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine, event, text
 from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy.engine import Engine
 
@@ -40,9 +40,7 @@ def auto_migrate_database(bind_engine, bind_base):
                 res = conn.execute(text("PRAGMA table_info(expenses)"))
                 cols = [row[1] for row in res.fetchall()]
                 if cols and "trip_id" not in cols:
-                    conn.execute(text("ALTER TABLE expenses ADD COLUMN trip_id INTEGER"))
+                    conn.execute(text("ALTER TABLE expenses ADD COLUMN trip_id INTEGER REFERENCES trips(id) ON DELETE CASCADE"))
                     conn.commit()
             except Exception as e:
                 print(f"Migration notice: {e}")
-
-
