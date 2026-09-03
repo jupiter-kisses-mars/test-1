@@ -20,6 +20,7 @@ from expense.routes import users, expenses, balances, dashboard as expense_dashb
 auto_migrate_database(engine, Base)
 
 
+
 app = FastAPI(
     title="TripMate & Expense Calculator API",
     description="Backend API for TripMate and Expense Calculator",
@@ -36,6 +37,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
 
 # Include Routers
 app.include_router(auth_router.router)

@@ -18,6 +18,7 @@ if not hasattr(bcrypt, "__about__"):
         __version__ = getattr(bcrypt, "__version__", "4.0.0")
     bcrypt.__about__ = BcryptAbout()
 
+# Secret key settings loaded from environment variable
 SECRET_KEY = os.getenv("SECRET_KEY", "tripmate-secret-key-change-in-production-for-security")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
@@ -79,3 +80,4 @@ def get_current_user_optional(token: Optional[str] = Depends(oauth2_scheme), db:
         return db.query(models.User).filter(models.User.id == user_id).first()
     except JWTError:
         return None
+

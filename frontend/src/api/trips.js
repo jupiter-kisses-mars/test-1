@@ -1,4 +1,6 @@
-const API_BASE_URL = 'http://localhost:8000/api/trips';
+const BASE_URL = import.meta.env?.VITE_API_BASE_URL || 'http://localhost:8000';
+const API_BASE_URL = `${BASE_URL.replace(/\/$/, '')}/api/trips`;
+
 
 function getAuthHeader() {
   const token = localStorage.getItem('token');
@@ -65,6 +67,24 @@ export async function addTripMember(tripId, email) {
   const data = await response.json();
   if (!response.ok) {
     throw new Error(data.detail || 'Failed to add member to trip');
+  }
+  return data;
+}
+
+/**
+ * Accept or reject a trip invitation
+ * @param {number} tripId 
+ * @param {'accepted' | 'rejected'} status 
+ */
+export async function respondToTripInvitation(tripId, status) {
+  const response = await fetch(`${API_BASE_URL}/${tripId}/invitation`, {
+    method: 'PUT',
+    headers: getAuthHeader(),
+    body: JSON.stringify({ status }),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.detail || 'Failed to update invitation status');
   }
   return data;
 }

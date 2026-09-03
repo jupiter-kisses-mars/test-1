@@ -20,6 +20,9 @@ class User(Base):
     def name(self, value: str):
         self.full_name = value
 
+    # Relationships
+    paid_expenses = relationship("Expense", back_populates="payer", cascade="all, delete-orphan")
+    expense_shares = relationship("ExpenseParticipant", back_populates="user", cascade="all, delete-orphan")
 
 class Trip(Base):
     __tablename__ = "trips"
@@ -77,3 +80,10 @@ class ChatMessage(Base):
 
     sender = relationship("User", foreign_keys=[sender_id])
     trip = relationship("Trip", backref="chat_messages")
+    status = Column(String(50), default="accepted") # 'pending', 'accepted', 'rejected'
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    trip = relationship("Trip", back_populates="members")
+    user = relationship("User", foreign_keys=[user_id])
+
+

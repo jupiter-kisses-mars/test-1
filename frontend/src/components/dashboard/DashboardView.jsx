@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Compass, LogOut, User, RefreshCw, DollarSign, Map } from 'lucide-react';
-import { fetchTrips, createTrip, deleteTrip } from '../../api/trips';
+import { Plus, Compass, LogOut, User, RefreshCw, DollarSign, Map, Check, X, Clock } from 'lucide-react';
+import { fetchTrips, createTrip, deleteTrip, respondToTripInvitation } from '../../api/trips';
 import TripCard from './TripCard';
 import CreateTripModal from './CreateTripModal';
 import TripDetailsView from './TripDetailsView';
@@ -13,6 +13,7 @@ export default function DashboardView({ user, onLogout }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTrip, setSelectedTrip] = useState(null);
   const [viewTab, setViewTab] = useState('trips'); // 'trips' | 'expenses'
+  const [actionLoading, setActionLoading] = useState(null);
 
   const loadTrips = async () => {
     setLoading(true);
@@ -54,6 +55,24 @@ export default function DashboardView({ user, onLogout }) {
     }
   };
 
+  const handleRespondInvitation = async (tripId, status) => {
+    setActionLoading(tripId);
+    try {
+      await respondToTripInvitation(tripId, status);
+      await loadTrips();
+    } catch (err) {
+      alert(err.message || 'Failed to respond to invitation');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  // Filter pending invitations for current user
+  const pendingInvitations = trips.filter((t) => {
+    const myMemberRecord = t.members?.find((m) => m.id === user?.id || m.email === user?.email);
+    return myMemberRecord && myMemberRecord.status === 'pending' && t.owner_id !== user?.id;
+  });
+
   if (selectedTrip) {
     return (
       <div className="min-h-screen bg-slate-50 p-4 md:p-8 font-sans">
@@ -63,6 +82,7 @@ export default function DashboardView({ user, onLogout }) {
             currentUser={user}
             onBack={() => setSelectedTrip(null)}
             onUpdateTrip={handleUpdateTrip}
+            currentUserId={user?.id}
           />
 
         </div>
@@ -135,6 +155,58 @@ export default function DashboardView({ user, onLogout }) {
           <ExpenseCalculatorView />
         ) : (
           <>
+            {/* Pending Invitations Section */}
+            {pendingInvitations.length > 0 && (
+              <div className="bg-amber-50 border border-amber-200 rounded-3xl p-5 space-y-3">
+                <div className="flex items-center space-x-2 text-amber-800 font-bold text-sm">
+                  <Clock className="w-4 h-4 text-amber-600" />
+                  <span>Pending Trip Invitations ({pendingInvitations.length})</span>
+                </div>
+                <p className="text-xs text-amber-700">
+                  You have been invited as a collaborator to the following trip(s). Please approve or decline:
+                </p>
+                <div className="space-y-2">
+                  {pendingInvitations.map((invTrip) => {
+                    const ownerMember = invTrip.members?.find((m) => m.role === 'owner');
+                    return (
+                      <div
+                        key={invTrip.id}
+                        className="flex flex-col sm:flex-row sm:items-center justify-between bg-white p-3.5 rounded-2xl border border-amber-100 shadow-sm gap-3"
+                      >
+                        <div>
+                          <h4 className="font-bold text-slate-800 text-sm">{invTrip.title}</h4>
+                          <p className="text-xs text-slate-500">
+                            Destination: <span className="font-medium text-slate-700">{invTrip.destination}</span> • Invited by:{' '}
+                            <span className="font-semibold text-teal-700">
+                              {ownerMember?.full_name || 'Trip Owner'}
+                            </span>
+                          </p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => handleRespondInvitation(invTrip.id, 'accepted')}
+                            disabled={actionLoading === invTrip.id}
+                            className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs flex items-center space-x-1 transition-colors cursor-pointer disabled:opacity-50"
+                          >
+                            <Check className="w-3.5 h-3.5" />
+                            <span>Approve</span>
+                          </button>
+                          <button
+                            onClick={() => handleRespondInvitation(invTrip.id, 'rejected')}
+                            disabled={actionLoading === invTrip.id}
+                            className="px-3 py-1.5 bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 rounded-xl font-bold text-xs flex items-center space-x-1 transition-colors cursor-pointer disabled:opacity-50"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                            <span>Decline</span>
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             {/* Banner Section */}
             <div className="bg-gradient-to-r from-teal-700 via-emerald-600 to-teal-800 rounded-3xl p-6 md:p-10 text-white shadow-xl relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
               <div className="space-y-2 max-w-xl z-10">
