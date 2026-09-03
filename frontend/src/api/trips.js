@@ -72,6 +72,24 @@ export async function addTripMember(tripId, email) {
 }
 
 /**
+ * Accept or reject a trip invitation
+ * @param {number} tripId 
+ * @param {'accepted' | 'rejected'} status 
+ */
+export async function respondToTripInvitation(tripId, status) {
+  const response = await fetch(`${API_BASE_URL}/${tripId}/invitation`, {
+    method: 'PUT',
+    headers: getAuthHeader(),
+    body: JSON.stringify({ status }),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.detail || 'Failed to update invitation status');
+  }
+  return data;
+}
+
+/**
  * Delete a trip
  */
 export async function deleteTrip(tripId) {

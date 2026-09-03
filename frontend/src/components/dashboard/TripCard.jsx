@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, MapPin, Users, Clock, Trash2, ArrowRight } from 'lucide-react';
+import { Calendar, MapPin, Clock, Trash2, ArrowRight, AlertCircle } from 'lucide-react';
 
 export default function TripCard({ trip, onSelectTrip, onDeleteTrip, currentUserId }) {
   // Calculate countdown days
@@ -18,6 +18,14 @@ export default function TripCard({ trip, onSelectTrip, onDeleteTrip, currentUser
   const countdownText = getCountdown(trip.start_date);
   const isOwner = trip.owner_id === currentUserId;
 
+  // Check if the current user is pending approval
+  const myMember = trip.members?.find((m) => m.id === currentUserId || m.email === trip._currentUserEmail);
+  const isPendingForMe = myMember && myMember.status === 'pending' && !isOwner;
+
+  // Count accepted members (excluding pending ones)
+  const acceptedMembers = trip.members?.filter((m) => m.status !== 'pending') || [];
+  const pendingMembers = trip.members?.filter((m) => m.status === 'pending') || [];
+
   return (
     <div
       onClick={() => onSelectTrip(trip)}
@@ -28,7 +36,13 @@ export default function TripCard({ trip, onSelectTrip, onDeleteTrip, currentUser
         <img
           src={trip.cover_image && trip.cover_image !== 'default' ? trip.cover_image : 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80'}
           alt={trip.title}
+          crossOrigin="anonymous"
+          referrerPolicy="no-referrer"
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          onError={(e) => {
+            // Fallback gradient if image fails
+            e.target.style.display = 'none';
+          }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
 
@@ -81,28 +95,41 @@ export default function TripCard({ trip, onSelectTrip, onDeleteTrip, currentUser
           )}
         </div>
 
-        <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-          {/* Member Avatars */}
-          <div className="flex items-center space-x-2">
-            <div className="flex -space-x-2 overflow-hidden">
-              {trip.members && trip.members.slice(0, 4).map((m, idx) => (
-                <div
-                  key={m.id || idx}
-                  title={m.full_name}
-                  className="inline-block h-7 w-7 rounded-full ring-2 ring-white bg-gradient-to-tr from-teal-500 to-emerald-400 text-white font-bold text-xs flex items-center justify-center shadow-sm"
-                >
-                  {m.full_name.charAt(0).toUpperCase()}
-                </div>
-              ))}
+        <div className="pt-3 border-t border-slate-100 space-y-2">
+          {/* Pending approval notice for pending members */}
+          {pendingMembers.length > 0 && isOwner && (
+            <div className="flex items-center space-x-1.5 text-[10px] text-amber-700 bg-amber-50 border border-amber-100 px-2.5 py-1.5 rounded-xl">
+              <AlertCircle className="w-3 h-3 text-amber-500 shrink-0" />
+              <span>{pendingMembers.length} collaborator{pendingMembers.length > 1 ? 's' : ''} awaiting approval</span>
             </div>
-            <span className="text-[11px] text-slate-400 font-medium">
-              {trip.members?.length || 1} friend{(trip.members?.length || 1) > 1 ? 's' : ''}
-            </span>
-          </div>
+          )}
 
-          <div className="flex items-center text-teal-600 font-semibold text-xs group-hover:translate-x-1 transition-transform">
-            <span>View Trip</span>
-            <ArrowRight className="w-3.5 h-3.5 ml-1" />
+          <div className="flex items-center justify-between">
+            {/* Member Avatars */}
+            <div className="flex items-center space-x-2">
+              <div className="flex -space-x-2 overflow-hidden">
+                {acceptedMembers.slice(0, 4).map((m, idx) => (
+                  <div
+                    key={m.id || idx}
+                    title={m.full_name}
+                    className="inline-block h-7 w-7 rounded-full ring-2 ring-white bg-gradient-to-tr from-teal-500 to-emerald-400 text-white font-bold text-xs flex items-center justify-center shadow-sm"
+                  >
+                    {m.full_name.charAt(0).toUpperCase()}
+                  </div>
+                ))}
+              </div>
+              <span className="text-[11px] text-slate-400 font-medium">
+                {acceptedMembers.length} member{acceptedMembers.length !== 1 ? 's' : ''}
+                {pendingMembers.length > 0 && (
+                  <span className="text-amber-500 ml-1">+{pendingMembers.length} pending</span>
+                )}
+              </span>
+            </div>
+
+            <div className="flex items-center text-teal-600 font-semibold text-xs group-hover:translate-x-1 transition-transform">
+              <span>View Trip</span>
+              <ArrowRight className="w-3.5 h-3.5 ml-1" />
+            </div>
           </div>
         </div>
       </div>

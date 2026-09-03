@@ -47,6 +47,7 @@ class TripMember(Base):
     trip_id = Column(Integer, ForeignKey("trips.id", ondelete="CASCADE"), nullable=False, index=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     role = Column(String(50), default="member") # 'owner' or 'member'
+    status = Column(String(50), default="accepted") # 'pending', 'accepted', 'rejected'
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     trip = relationship("Trip", back_populates="members")

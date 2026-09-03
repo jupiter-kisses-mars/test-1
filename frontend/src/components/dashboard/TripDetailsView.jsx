@@ -35,7 +35,10 @@ export default function TripDetailsView({ trip, onBack, onUpdateTrip }) {
         <img
           src={trip.cover_image && trip.cover_image !== 'default' ? trip.cover_image : 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80'}
           alt={trip.title}
+          crossOrigin="anonymous"
+          referrerPolicy="no-referrer"
           className="absolute inset-0 w-full h-full object-cover opacity-40"
+          onError={(e) => { e.target.style.display = 'none'; }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
 
@@ -215,11 +218,19 @@ export default function TripDetailsView({ trip, onBack, onUpdateTrip }) {
                         <p className="text-[10px] text-slate-400">{member.email}</p>
                       </div>
                     </div>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
-                      member.role === 'owner' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-600'
-                    }`}>
-                      {member.role}
-                    </span>
+                    <div className="flex items-center space-x-1">
+                      {member.status === 'pending' ? (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase bg-amber-100 text-amber-800 border border-amber-200">
+                          Pending Approval
+                        </span>
+                      ) : (
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
+                          member.role === 'owner' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-600'
+                        }`}>
+                          {member.role}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
