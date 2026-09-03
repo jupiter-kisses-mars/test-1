@@ -20,9 +20,6 @@ class User(Base):
     def name(self, value: str):
         self.full_name = value
 
-    # Relationships
-    paid_expenses = relationship("Expense", back_populates="payer", cascade="all, delete-orphan")
-    expense_shares = relationship("ExpenseParticipant", back_populates="user", cascade="all, delete-orphan")
 
 class Trip(Base):
     __tablename__ = "trips"
@@ -40,6 +37,7 @@ class Trip(Base):
     owner = relationship("User", foreign_keys=[owner_id])
     members = relationship("TripMember", back_populates="trip", cascade="all, delete-orphan")
 
+
 class TripMember(Base):
     __tablename__ = "trip_members"
 
@@ -47,10 +45,12 @@ class TripMember(Base):
     trip_id = Column(Integer, ForeignKey("trips.id", ondelete="CASCADE"), nullable=False, index=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     role = Column(String(50), default="member") # 'owner' or 'member'
+    status = Column(String(50), default="accepted") # 'pending', 'accepted', 'rejected'
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     trip = relationship("Trip", back_populates="members")
     user = relationship("User", foreign_keys=[user_id])
+
 
 class ItineraryItem(Base):
     __tablename__ = "itinerary_items"
@@ -69,6 +69,7 @@ class ItineraryItem(Base):
 
     trip = relationship("Trip", backref="itinerary_items")
 
+
 class ChatMessage(Base):
     __tablename__ = "chat_messages"
 
@@ -80,10 +81,3 @@ class ChatMessage(Base):
 
     sender = relationship("User", foreign_keys=[sender_id])
     trip = relationship("Trip", backref="chat_messages")
-    status = Column(String(50), default="accepted") # 'pending', 'accepted', 'rejected'
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-
-    trip = relationship("Trip", back_populates="members")
-    user = relationship("User", foreign_keys=[user_id])
-
-

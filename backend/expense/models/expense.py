@@ -17,7 +17,7 @@ class Expense(Base):
 
     # Relationships
     trip = relationship("Trip", backref="expenses")
-    payer = relationship("User", back_populates="paid_expenses")
+    payer = relationship("User", backref="paid_expenses")
     participants = relationship("ExpenseParticipant", back_populates="expense", cascade="all, delete-orphan")
 
 
@@ -32,4 +32,4 @@ class ExpenseParticipant(Base):
 
     # Relationships
     expense = relationship("Expense", back_populates="participants")
-    user = relationship("User", back_populates="expense_shares")
+    user = relationship("User", backref="expense_shares")
