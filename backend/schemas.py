@@ -39,3 +39,48 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     email: Optional[str] = None
     user_id: Optional[int] = None
+
+# Trip Member Schema
+class TripMemberUser(BaseModel):
+    id: int
+    full_name: str
+    email: EmailStr
+    role: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+# Trip Base Schema
+class TripBase(BaseModel):
+    title: str
+    destination: str
+    start_date: str
+    end_date: str
+    description: Optional[str] = None
+    cover_image: Optional[str] = "default"
+
+# Schema for creating a trip
+class TripCreate(TripBase):
+    invite_emails: Optional[list[EmailStr]] = []
+
+# Schema for updating a trip
+class TripUpdate(BaseModel):
+    title: Optional[str] = None
+    destination: Optional[str] = None
+    start_date: Optional[str] = None
+    end_date: Optional[str] = None
+    description: Optional[str] = None
+    cover_image: Optional[str] = None
+
+# Schema for adding member
+class AddMemberSchema(BaseModel):
+    email: EmailStr
+
+# Schema for Trip Response
+class TripResponse(TripBase):
+    id: int
+    owner_id: int
+    created_at: datetime
+    members: list[TripMemberUser] = []
+
+    model_config = ConfigDict(from_attributes=True)
+

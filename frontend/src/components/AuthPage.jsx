@@ -17,7 +17,8 @@ import {
 } from 'lucide-react';
 import { registerUser, loginUser } from '../api/auth';
 
-export default function AuthPage() {
+export default function AuthPage({ onAuthSuccess }) {
+
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -100,7 +101,11 @@ export default function AuthPage() {
         setCurrentUser(user);
       }
       setSubmitted(true);
+      if (onAuthSuccess) {
+        onAuthSuccess();
+      }
     } catch (err) {
+
       setErrors({ api: err.message || 'Something went wrong. Please try again.' });
     } finally {
       setLoading(false);

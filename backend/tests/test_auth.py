@@ -1,19 +1,13 @@
 import pytest
-import os
 from fastapi.testclient import TestClient
-
-# Use a test database for running pytest
-os.environ["SQLALCHEMY_DATABASE_URL"] = "sqlite:///./test_tripmate.db"
-
-from main import app
 from database import Base, engine
+import models
+from main import app
 
 @pytest.fixture(autouse=True)
 def setup_db():
-    Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
     yield
-    Base.metadata.drop_all(bind=engine)
 
 client = TestClient(app)
 
@@ -31,7 +25,7 @@ def test_register_login_me_flow():
     # 2. Test Successful Registration
     user_payload = {
         "full_name": "Phoobesh User",
-        "email": "phoobesh@example.com",
+        "email": "phoobesh_auth_test_clean@example.com",
         "password": "securepassword123",
         "confirm_password": "securepassword123"
     }
@@ -42,9 +36,9 @@ def test_register_login_me_flow():
     assert data["full_name"] == user_payload["full_name"]
     assert "id" in data
 
-    # 2. Test Login
+    # 3. Test Login
     login_payload = {
-        "email": "phoobesh@example.com",
+        "email": "phoobesh_auth_test_clean@example.com",
         "password": "securepassword123"
     }
     response = client.post("/api/auth/login", json=login_payload)
@@ -54,7 +48,7 @@ def test_register_login_me_flow():
     assert data["token_type"] == "bearer"
     token = data["access_token"]
 
-    # 3. Test Protected /me endpoint
+    # 4. Test Protected /me endpoint
     headers = {"Authorization": f"Bearer {token}"}
     response = client.get("/api/auth/me", headers=headers)
     assert response.status_code == 200
