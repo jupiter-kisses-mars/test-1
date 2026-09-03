@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Compass, LogOut, User, RefreshCw, DollarSign, Map, Check, X, Clock } from 'lucide-react';
+import { Plus, Compass, LogOut, User, RefreshCw, DollarSign, Map, Check, X, Clock, MapPin } from 'lucide-react';
 import { fetchTrips, createTrip, deleteTrip, respondToTripInvitation } from '../../api/trips';
 import TripCard from './TripCard';
 import CreateTripModal from './CreateTripModal';
 import TripDetailsView from './TripDetailsView';
 import ExpenseCalculatorView from './ExpenseCalculatorView';
+import PlacesView from './PlacesView';
 
 export default function DashboardView({ user, onLogout }) {
   const [trips, setTrips] = useState([]);
@@ -12,7 +13,7 @@ export default function DashboardView({ user, onLogout }) {
   const [error, setError] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTrip, setSelectedTrip] = useState(null);
-  const [viewTab, setViewTab] = useState('trips'); // 'trips' | 'expenses'
+  const [viewTab, setViewTab] = useState('trips'); // 'trips' | 'expenses' | 'places'
   const [actionLoading, setActionLoading] = useState(null);
 
   const loadTrips = async () => {
@@ -118,6 +119,18 @@ export default function DashboardView({ user, onLogout }) {
               </button>
 
               <button
+                onClick={() => setViewTab('places')}
+                className={`flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                  viewTab === 'places'
+                    ? 'bg-white text-teal-800 shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <MapPin className="w-3.5 h-3.5 text-indigo-600" />
+                <span>Places & Suggestions</span>
+              </button>
+
+              <button
                 onClick={() => setViewTab('expenses')}
                 className={`flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
                   viewTab === 'expenses'
@@ -151,6 +164,8 @@ export default function DashboardView({ user, onLogout }) {
       <main className="max-w-6xl mx-auto px-4 md:px-8 pt-8 space-y-8">
         {viewTab === 'expenses' ? (
           <ExpenseCalculatorView />
+        ) : viewTab === 'places' ? (
+          <PlacesView />
         ) : (
           <>
             {/* Pending Invitations Section */}

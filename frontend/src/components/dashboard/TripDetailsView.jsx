@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ArrowLeft, Calendar, MapPin, Users, Plus, DollarSign, Map, MessageSquare, Compass, CheckCircle } from 'lucide-react';
 import { addTripMember } from '../../api/trips';
 import ExpenseCalculatorView from './ExpenseCalculatorView';
+import PlacesView from './PlacesView';
 
 export default function TripDetailsView({ trip, onBack, onUpdateTrip }) {
   const [inviteEmail, setInviteEmail] = useState('');
@@ -77,9 +78,9 @@ export default function TripDetailsView({ trip, onBack, onUpdateTrip }) {
       <div className="flex space-x-2 border-b border-slate-200 pb-2 overflow-x-auto">
         {[
           { id: 'overview', label: 'Overview', icon: Compass },
+          { id: 'places', label: 'Places & Suggestions', icon: MapPin, badge: 'Live' },
           { id: 'expenses', label: 'Expense Calculator', icon: DollarSign, badge: 'Live' },
           { id: 'itinerary', label: 'Itinerary (Feature 2)', icon: Map, badge: 'Next' },
-          { id: 'places', label: 'Places (Feature 4)', icon: MapPin, badge: 'Next' },
           { id: 'chat', label: 'Chat (Feature 5)', icon: MessageSquare, badge: 'Next' },
         ].map((tab) => {
           const Icon = tab.icon;
@@ -96,13 +97,22 @@ export default function TripDetailsView({ trip, onBack, onUpdateTrip }) {
             >
               <Icon className="w-4 h-4" />
               <span>{tab.label}</span>
+              {tab.badge === 'Live' && (
+                <span className={`text-[9px] font-extrabold px-1.5 py-0.2 rounded-full uppercase ${isActive ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-800'}`}>
+                  Live
+                </span>
+              )}
             </button>
           );
         })}
       </div>
 
       {/* Main Content Display */}
-      {activeTab === 'expenses' ? (
+      {activeTab === 'places' ? (
+        <div className="w-full pt-2">
+          <PlacesView tripId={trip.id} tripTitle={trip.title} />
+        </div>
+      ) : activeTab === 'expenses' ? (
         <div className="w-full pt-2">
           <ExpenseCalculatorView tripId={trip.id} />
         </div>
@@ -116,18 +126,36 @@ export default function TripDetailsView({ trip, onBack, onUpdateTrip }) {
                 {/* Feature Modules Status Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div
-                    onClick={() => setActiveTab('expenses')}
-                    className="bg-white p-5 rounded-2xl border border-teal-200 shadow-sm hover:shadow-md transition-all cursor-pointer"
+                    onClick={() => setActiveTab('places')}
+                    className="bg-white p-5 rounded-2xl border border-indigo-200 shadow-sm hover:shadow-md transition-all cursor-pointer group"
                   >
                     <div className="flex justify-between items-start mb-3">
-                      <div className="p-2 bg-emerald-50 text-emerald-600 rounded-xl">
+                      <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl group-hover:scale-110 transition-transform">
+                        <MapPin className="w-5 h-5" />
+                      </div>
+                      <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">
+                        Live & Connected
+                      </span>
+                    </div>
+                    <h4 className="font-bold text-slate-800 text-sm group-hover:text-indigo-600 transition-colors">Places & Suggestions</h4>
+                    <p className="text-xs text-slate-500 mt-1">
+                      Bookmark food spots, tourist sites, shopping & activities, rate places, and view dynamic recommendations.
+                    </p>
+                  </div>
+
+                  <div
+                    onClick={() => setActiveTab('expenses')}
+                    className="bg-white p-5 rounded-2xl border border-teal-200 shadow-sm hover:shadow-md transition-all cursor-pointer group"
+                  >
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="p-2 bg-emerald-50 text-emerald-600 rounded-xl group-hover:scale-110 transition-transform">
                         <DollarSign className="w-5 h-5" />
                       </div>
                       <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">
-                        Live & 100% Connected
+                        Live & Connected
                       </span>
                     </div>
-                    <h4 className="font-bold text-slate-800 text-sm">Expense Calculator</h4>
+                    <h4 className="font-bold text-slate-800 text-sm group-hover:text-teal-600 transition-colors">Expense Calculator</h4>
                     <p className="text-xs text-slate-500 mt-1">
                       Manage members, add expenses, equal/custom split, preview calculations, balances & settlements.
                     </p>
@@ -145,21 +173,6 @@ export default function TripDetailsView({ trip, onBack, onUpdateTrip }) {
                     <h4 className="font-bold text-slate-800 text-sm">2. Itinerary Planner</h4>
                     <p className="text-xs text-slate-500 mt-1">
                       Organize activities by day, drag/reorder time slots & locations.
-                    </p>
-                  </div>
-
-                  <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex justify-between items-start mb-3">
-                      <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl">
-                        <MapPin className="w-5 h-5" />
-                      </div>
-                      <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-amber-100 text-amber-800">
-                        Coming Next
-                      </span>
-                    </div>
-                    <h4 className="font-bold text-slate-800 text-sm">4. Places & Suggestions</h4>
-                    <p className="text-xs text-slate-500 mt-1">
-                      Bookmark food spots, activities, shopping centers & give ratings.
                     </p>
                   </div>
 
