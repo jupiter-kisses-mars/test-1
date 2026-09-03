@@ -33,11 +33,12 @@ export default function CreateTripModal({ isOpen, onClose, onCreateTrip }) {
       return;
     }
 
-    // Parse emails split by comma or newline
+    // Parse emails split by comma or newline with email pattern validation
     const invite_emails = formData.invite_emails_str
       .split(/[\n,]+/)
       .map((e) => e.trim())
-      .filter((e) => e.length > 0);
+      .filter((e) => e.length > 0 && /\S+@\S+\.\S+/.test(e));
+
 
     setLoading(true);
     try {

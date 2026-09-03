@@ -1,10 +1,14 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from expense.database import engine, Base
+from database import auto_migrate_database
 from expense.routes import users, expenses, balances, dashboard
 
-# Create database tables if they do not exist
-Base.metadata.create_all(bind=engine)
+
+# Create database tables and auto-migrate missing columns if needed
+auto_migrate_database(engine, Base)
+
+
 
 app = FastAPI(
     title="Expense Calculator API",
@@ -22,6 +26,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
 
 # Include API Routers
 app.include_router(users.router)
