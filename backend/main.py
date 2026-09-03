@@ -11,6 +11,8 @@ if backend_dir not in sys.path:
 from database import engine, Base, auto_migrate_database
 import auth_router
 import trips_router
+import places_models
+import places_router
 import itinerary_router
 import chat_router
 
@@ -43,6 +45,7 @@ app.add_middleware(
 # Include Routers
 app.include_router(auth_router.router)
 app.include_router(trips_router.router)
+app.include_router(places_router.router)
 app.include_router(itinerary_router.router)
 app.include_router(chat_router.router)
 app.include_router(users.router)
