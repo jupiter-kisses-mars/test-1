@@ -58,48 +58,68 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
   // Member Filter State for view
   const [selectedCollaboratorFilter, setSelectedCollaboratorFilter] = useState('all');
 
-  const loadAllData = async () => {
+  const loadBaseData = async () => {
     setLoading(true);
     setError('');
     try {
-      const [uData, eData, bData, sData, sumData, tripsData] = await Promise.all([
+      const [uData, sumData, tripsData] = await Promise.all([
         fetchUsers().catch(() => []),
-        fetchExpenses().catch(() => []),
-        fetchBalances().catch(() => ({ balances: [] })),
-        fetchSettlements().catch(() => ({ settlements: [] })),
         fetchDashboardSummary().catch(() => null),
         fetchTrips().catch(() => [])
       ]);
 
-
       setUsers(uData);
-      setExpenses(eData);
-      setBalances(bData.balances || []);
-      setSettlements(sData.settlements || []);
       setSummary(sumData);
       setTrips(tripsData);
 
-      // Prioritize propTripId if passed, else select default trip
-      if (propTripId) {
-        setSelectedTripId(propTripId.toString());
-      } else if (!selectedTripId && tripsData.length > 0) {
-        setSelectedTripId(tripsData[0].id.toString());
+      let initialTrip = propTripId ? propTripId.toString() : '';
+      if (!initialTrip && tripsData.length > 0) {
+        initialTrip = tripsData[0].id.toString();
       }
+      setSelectedTripId(initialTrip);
 
-      // Default paidBy to first user if available and not set
       if (uData.length > 0 && !paidBy) {
         setPaidBy(uData[0].id.toString());
       }
     } catch (err) {
-      setError(err.message || 'Failed to load expense calculator data');
+      setError(err.message || 'Failed to load base data');
     } finally {
       setLoading(false);
     }
   };
 
+  const loadTripData = async (tripIdToLoad) => {
+    const tid = tripIdToLoad || null;
+    try {
+      const [eData, bData, sData] = await Promise.all([
+        fetchExpenses(tid).catch(() => []),
+        fetchBalances(tid).catch(() => ({ balances: [] })),
+        fetchSettlements(tid).catch(() => ({ settlements: [] }))
+      ]);
+      setExpenses(eData);
+      setBalances(bData.balances || []);
+      setSettlements(sData.settlements || []);
+    } catch (err) {
+      console.error('Failed to load trip specific data', err);
+    }
+  };
+
+  const loadAllData = async () => {
+    await loadBaseData();
+    // After reloading base data, force reload the active trip's data
+    // since selectedTripId might not have changed but we need fresh expenses
+    await loadTripData(selectedTripId);
+  };
+
   useEffect(() => {
-    loadAllData();
+    loadBaseData();
   }, [propTripId]);
+
+  useEffect(() => {
+    if (users.length > 0 || trips.length > 0) {
+      loadTripData(selectedTripId);
+    }
+  }, [selectedTripId, users.length, trips.length]);
 
 
   // Filtered Collaborators for the selected trip or all users
@@ -205,7 +225,15 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
   };
 
   // Preview Calculation
-  const handlePreviewCalculation = async () => {
+  const handlePreviewCalculation = async (e) => {
+    if (e) e.preventDefault();
+    
+    // Toggle off if already showing
+    if (previewResult) {
+      setPreviewResult(null);
+      return;
+    }
+
     setError('');
     setPreviewResult(null);
 
@@ -245,6 +273,7 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
     setSubmittingExpense(true);
     try {
       await createExpense({
+        trip_id: selectedTripId ? parseInt(selectedTripId, 10) : null,
         description: description.trim(),
         amount: parseFloat(amount),
         paid_by: parseInt(paidBy, 10),
@@ -281,7 +310,7 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
     : expenses.filter(
         (e) =>
           e.paid_by.toString() === selectedCollaboratorFilter.toString() ||
-          e.participants.some((p) => p.user_id.toString() === selectedCollaboratorFilter.toString())
+          e.participants?.some((p) => p.user_id.toString() === selectedCollaboratorFilter.toString())
       );
 
   return (
@@ -296,7 +325,10 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
             <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Select Trip Context</label>
             <select
               value={selectedTripId}
-              onChange={(e) => setSelectedTripId(e.target.value)}
+              onChange={(e) => {
+                setSelectedTripId(e.target.value);
+                setSelectedCollaboratorFilter('all');
+              }}
               className="block font-extrabold text-slate-800 text-lg bg-transparent border-none focus:ring-0 cursor-pointer p-0 pr-6"
             >
               {trips.map((t) => (
@@ -343,7 +375,7 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
           </div>
           <div>
             <p className="text-xs text-slate-400 font-semibold uppercase">Total Expenses</p>
-            <p className="text-2xl font-bold text-slate-800">{expenses.length}</p>
+            <p className="text-2xl font-bold text-slate-800">{displayedExpenses.length}</p>
           </div>
         </div>
 
@@ -353,7 +385,9 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
           </div>
           <div>
             <p className="text-xs text-slate-400 font-semibold uppercase">Total Spent</p>
-            <p className="text-2xl font-bold text-slate-800">₹{summary?.total_expenses_amount || '0.00'}</p>
+            <p className="text-2xl font-bold text-slate-800">
+              ₹{displayedExpenses.reduce((sum, item) => sum + (Number(item.amount) || 0), 0).toFixed(2)}
+            </p>
           </div>
         </div>
 
@@ -619,7 +653,7 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
                 className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl flex items-center justify-center space-x-1.5 transition-colors disabled:opacity-50 cursor-pointer"
               >
                 <Calculator className="w-4 h-4 text-teal-600" />
-                <span>{calculatingPreview ? 'Calculating...' : 'Preview Split Shares'}</span>
+                <span>{calculatingPreview ? 'Calculating...' : previewResult ? 'Hide Preview' : 'Preview Split Shares'}</span>
               </button>
 
               <button
