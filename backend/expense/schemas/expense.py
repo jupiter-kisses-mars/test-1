@@ -43,6 +43,7 @@ class ExpenseCalculateResponse(BaseModel):
     shares: List[CalculatedShare]
 
 class ExpenseCreate(BaseModel):
+    trip_id: Optional[int] = None
     description: str = Field(..., min_length=1, max_length=255)
     amount: Decimal = Field(..., gt=0, description="Total expense amount, must be positive")
     paid_by: int
@@ -61,6 +62,7 @@ class ExpenseCreate(BaseModel):
         return self
 
 class ExpenseUpdate(BaseModel):
+    trip_id: Optional[int] = None
     description: Optional[str] = Field(default=None, min_length=1, max_length=255)
     amount: Optional[Decimal] = Field(default=None, gt=0)
     paid_by: Optional[int] = None
@@ -69,6 +71,7 @@ class ExpenseUpdate(BaseModel):
 
 class ExpenseResponse(BaseModel):
     id: int
+    trip_id: Optional[int] = None
     description: str
     amount: Decimal
     paid_by: int

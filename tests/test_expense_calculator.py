@@ -1,5 +1,5 @@
 from decimal import Decimal
-from app.utils.money import calculate_equal_split, round_money
+from expense.utils.money import calculate_equal_split, round_money
 
 def test_money_equal_split_rounding():
     # Test 100 / 3 -> 33.34, 33.33, 33.33
