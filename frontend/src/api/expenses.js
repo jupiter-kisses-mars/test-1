@@ -42,8 +42,9 @@ export async function deleteUser(id) {
 }
 
 // Expenses API
-export async function fetchExpenses() {
-  const res = await fetch(`${API_BASE_URL}/expenses`, { headers: getHeaders() });
+export async function fetchExpenses(tripId = null) {
+  const url = tripId ? `${API_BASE_URL}/expenses?trip_id=${tripId}` : `${API_BASE_URL}/expenses`;
+  const res = await fetch(url, { headers: getHeaders() });
   const data = await res.json();
   if (!res.ok) throw new Error(data.detail || 'Failed to fetch expenses');
   return data;
@@ -95,15 +96,17 @@ export async function deleteExpense(id) {
 }
 
 // Balances & Settlements API
-export async function fetchBalances() {
-  const res = await fetch(`${API_BASE_URL}/balances`, { headers: getHeaders() });
+export async function fetchBalances(tripId = null) {
+  const url = tripId ? `${API_BASE_URL}/balances?trip_id=${tripId}` : `${API_BASE_URL}/balances`;
+  const res = await fetch(url, { headers: getHeaders() });
   const data = await res.json();
   if (!res.ok) throw new Error(data.detail || 'Failed to fetch balances');
   return data;
 }
 
-export async function fetchSettlements() {
-  const res = await fetch(`${API_BASE_URL}/balances/settlements`, { headers: getHeaders() });
+export async function fetchSettlements(tripId = null) {
+  const url = tripId ? `${API_BASE_URL}/balances/settlements?trip_id=${tripId}` : `${API_BASE_URL}/balances/settlements`;
+  const res = await fetch(url, { headers: getHeaders() });
   const data = await res.json();
   if (!res.ok) throw new Error(data.detail || 'Failed to fetch settlements');
   return data;

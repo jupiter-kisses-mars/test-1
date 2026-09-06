@@ -27,8 +27,8 @@ def create_expense(expense_in: ExpenseCreate, db: Session = Depends(get_db), cur
     return expense_service.create_expense(db, expense_in)
 
 @router.get("", response_model=List[ExpenseResponse])
-def list_expenses(db: Session = Depends(get_db), current_user: Optional[models.User] = Depends(security.get_current_user_optional)):
-    return expense_service.get_expenses(db)
+def list_expenses(trip_id: Optional[int] = None, db: Session = Depends(get_db), current_user: Optional[models.User] = Depends(security.get_current_user_optional)):
+    return expense_service.get_expenses(db, trip_id=trip_id)
 
 @router.get("/{id}", response_model=ExpenseResponse)
 def get_expense(id: int, db: Session = Depends(get_db), current_user: Optional[models.User] = Depends(security.get_current_user_optional)):

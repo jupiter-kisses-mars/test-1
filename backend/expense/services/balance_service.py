@@ -1,5 +1,5 @@
 from decimal import Decimal
-from typing import List, Dict
+from typing import List, Dict, Optional
 from sqlalchemy.orm import Session, joinedload
 
 from expense.models.user import User
@@ -13,13 +13,15 @@ from expense.schemas.balance import (
 from expense.utils.money import round_money
 
 
-def calculate_user_balances(db: Session) -> BalancesResponse:
+def calculate_user_balances(db: Session, trip_id: Optional[int] = None) -> BalancesResponse:
     users = db.query(User).order_by(User.id.asc()).all()
     user_balances: Dict[int, Decimal] = {u.id: Decimal("0.00") for u in users}
     user_names: Dict[int, str] = {u.id: (getattr(u, "name", None) or getattr(u, "full_name", None) or f"User #{u.id}") for u in users}
 
-
-    expenses = db.query(Expense).options(joinedload(Expense.participants)).all()
+    query = db.query(Expense).options(joinedload(Expense.participants))
+    if trip_id is not None:
+        query = query.filter(Expense.trip_id == trip_id)
+    expenses = query.all()
 
     for exp in expenses:
         if exp.paid_by in user_balances:
@@ -43,8 +45,8 @@ def calculate_user_balances(db: Session) -> BalancesResponse:
     return BalancesResponse(balances=result)
 
 
-def calculate_settlements(db: Session) -> SettlementsResponse:
-    balances_res = calculate_user_balances(db)
+def calculate_settlements(db: Session, trip_id: Optional[int] = None) -> SettlementsResponse:
+    balances_res = calculate_user_balances(db, trip_id=trip_id)
     
     debtors = []
     creditors = []

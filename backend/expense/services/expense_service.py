@@ -1,5 +1,5 @@
 from decimal import Decimal
-from typing import List, Dict, Tuple
+from typing import List, Dict, Optional, Tuple
 from sqlalchemy.orm import Session, joinedload
 from fastapi import HTTPException, status
 
@@ -129,6 +129,7 @@ def create_expense(db: Session, expense_in: ExpenseCreate) -> ExpenseResponse:
 
     try:
         expense = Expense(
+            trip_id=expense_in.trip_id,
             description=expense_in.description.strip(),
             amount=calc_res.amount,
             paid_by=expense_in.paid_by,
@@ -175,6 +176,7 @@ def _format_expense_response(db: Session, expense: Expense) -> ExpenseResponse:
 
     return ExpenseResponse(
         id=expense.id,
+        trip_id=expense.trip_id,
         description=expense.description,
         amount=expense.amount,
         paid_by=expense.paid_by,
@@ -201,13 +203,12 @@ def get_expense_by_id(db: Session, expense_id: int) -> ExpenseResponse:
     return _format_expense_response(db, expense)
 
 
-def get_expenses(db: Session) -> List[ExpenseResponse]:
-    expenses = (
-        db.query(Expense)
-        .options(joinedload(Expense.participants))
-        .order_by(Expense.created_at.desc())
-        .all()
-    )
+def get_expenses(db: Session, trip_id: Optional[int] = None) -> List[ExpenseResponse]:
+    query = db.query(Expense).options(joinedload(Expense.participants))
+    if trip_id is not None:
+        query = query.filter(Expense.trip_id == trip_id)
+    
+    expenses = query.order_by(Expense.created_at.desc()).all()
     return [_format_expense_response(db, e) for e in expenses]
 
 
