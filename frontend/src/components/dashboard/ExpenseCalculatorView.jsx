@@ -316,7 +316,7 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
   return (
     <div className="space-y-8 font-sans text-slate-800">
       {/* Trip & Context Selector Bar */}
-      <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center space-x-3">
           <div className="p-3 bg-teal-50 text-teal-600 rounded-2xl">
             <MapPin className="w-6 h-6" />
@@ -359,7 +359,7 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
 
       {/* Top Banner Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center space-x-4">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
           <div className="p-3 bg-teal-50 text-teal-600 rounded-xl">
             <Users className="w-6 h-6" />
           </div>
@@ -369,7 +369,7 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center space-x-4">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
           <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
             <Receipt className="w-6 h-6" />
           </div>
@@ -379,7 +379,7 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center space-x-4">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
           <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
             <DollarSign className="w-6 h-6" />
           </div>
@@ -391,7 +391,7 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
             <p className="text-xs text-slate-400 font-semibold uppercase">Backend Engine</p>
             <span className="inline-flex items-center text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full mt-1">
@@ -420,7 +420,7 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
       {/* Main Grid: Group Collaborators & Expense Creation */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column: Group Members Dropdown & List */}
-        <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-6">
+        <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm space-y-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Users className="w-5 h-5 text-teal-600" />
@@ -449,7 +449,7 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
           </div>
 
           {/* Add New Collaborator Form */}
-          <form onSubmit={handleCreateUser} className="space-y-2 pt-2 border-t border-slate-100">
+          <form onSubmit={handleCreateUser} className="space-y-2 pt-2 border-t border-slate-200">
             <label className="text-xs font-semibold text-slate-600">Add New Collaborator</label>
             <div className="flex space-x-2">
               <input
@@ -491,7 +491,7 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
                   className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 hover:bg-slate-100 transition-colors"
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-teal-500 to-emerald-400 text-white font-bold text-xs flex items-center justify-center shadow-sm">
+                    <div className="w-8 h-8 rounded-full bg-teal-700 text-white font-medium text-xs flex items-center justify-center">
                       {c.name.charAt(0).toUpperCase()}
                     </div>
                     <div>
@@ -514,8 +514,8 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
         </div>
 
         {/* Right Column: Add Expense Form */}
-        <div className="lg:col-span-2 bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-6">
-          <div className="flex items-center space-x-2 border-b border-slate-100 pb-3">
+        <div className="lg:col-span-2 bg-white rounded-xl p-6 border border-slate-200 shadow-sm space-y-6">
+          <div className="flex items-center space-x-2 border-b border-slate-200 pb-3">
             <Calculator className="w-5 h-5 text-teal-600" />
             <h3 className="font-bold text-slate-800 text-sm">Add Expense & Preview Calculation</h3>
           </div>
@@ -694,8 +694,8 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
       {/* Grid: Balances & Simplified Settlements */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Balances Card */}
-        <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-200 pb-3">
             <div className="flex items-center space-x-2">
               <PieChart className="w-5 h-5 text-teal-600" />
               <h3 className="font-bold text-slate-800 text-sm">Overall User Balances</h3>
@@ -746,8 +746,8 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
         </div>
 
         {/* Simplified Settlements Card */}
-        <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-200 pb-3">
             <div className="flex items-center space-x-2">
               <ArrowRight className="w-5 h-5 text-teal-600" />
               <h3 className="font-bold text-slate-800 text-sm">Simplified "Who Owes Whom"</h3>
@@ -764,7 +764,7 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
               settlements.map((s, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center justify-between p-3.5 rounded-2xl bg-gradient-to-r from-teal-50/50 to-emerald-50/50 border border-teal-100/80"
+                  className="flex items-center justify-between p-3.5 rounded-lg bg-teal-50 border border-teal-100"
                 >
                   <div className="flex items-center space-x-2 text-xs font-semibold text-slate-800">
                     <span className="font-bold text-slate-900">{s.from_user_name}</span>
@@ -783,8 +783,8 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
       </div>
 
       {/* Expenses History List */}
-      <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+      <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-200 pb-3">
           <div className="flex items-center space-x-2">
             <Receipt className="w-5 h-5 text-teal-600" />
             <h3 className="font-bold text-slate-800 text-sm">Expense History</h3>
@@ -808,7 +808,7 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
             {displayedExpenses.map((exp) => (
               <div
                 key={exp.id}
-                className="p-4 rounded-2xl border border-slate-100 hover:border-teal-200 transition-colors space-y-3 bg-slate-50/50"
+                className="p-4 rounded-2xl border border-slate-200 hover:border-teal-200 transition-colors space-y-3 bg-slate-50/50"
               >
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                   <div>

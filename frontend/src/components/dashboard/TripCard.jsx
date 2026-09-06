@@ -29,7 +29,7 @@ export default function TripCard({ trip, onSelectTrip, onDeleteTrip, currentUser
   return (
     <div
       onClick={() => onSelectTrip(trip)}
-      className="group bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer flex flex-col justify-between"
+      className="group bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer flex flex-col justify-between"
     >
       {/* Cover Header */}
       <div className="relative h-44 w-full overflow-hidden bg-slate-100">
@@ -112,7 +112,7 @@ export default function TripCard({ trip, onSelectTrip, onDeleteTrip, currentUser
                   <div
                     key={m.id || idx}
                     title={m.full_name}
-                    className="inline-block h-7 w-7 rounded-full ring-2 ring-white bg-gradient-to-tr from-teal-500 to-emerald-400 text-white font-bold text-xs flex items-center justify-center shadow-sm"
+                    className="inline-flex h-7 w-7 rounded-full ring-2 ring-white bg-teal-700 text-white font-medium text-xs items-center justify-center shadow-sm"
                   >
                     {m.full_name.charAt(0).toUpperCase()}
                   </div>
