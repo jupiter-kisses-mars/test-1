@@ -180,17 +180,12 @@ export default function ItineraryView({ trip }) {
 
   return (
     <div className="space-y-6 font-sans text-slate-800">
-      {/* Top Banner Stats */}
-      <div className="bg-gradient-to-r from-teal-700 via-emerald-600 to-teal-800 rounded-3xl p-6 md:p-8 text-white shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center space-x-2 text-teal-200 text-xs font-bold uppercase tracking-wider">
-            <Sparkles className="w-4 h-4 text-amber-300" />
-            <span>Itinerary Schedule</span>
-          </div>
-          <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight">
+      <div className="bg-white border border-slate-200 rounded-xl p-6 md:p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-sm">
+        <div className="space-y-1.5 max-w-xl">
+          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
             {trip.title} Itinerary
           </h2>
-          <p className="text-teal-100 text-xs">
+          <p className="text-slate-600 text-sm">
             Organize daily sight-seeing, activities, meals, and times for {trip.destination}.
           </p>
         </div>
@@ -231,7 +226,7 @@ export default function ItineraryView({ trip }) {
       )}
 
       {/* Day Selector Tabs */}
-      <div className="flex items-center space-x-2 bg-white p-2 rounded-2xl border border-slate-100 shadow-xs overflow-x-auto">
+      <div className="flex items-center space-x-2 bg-white p-2 rounded-2xl border border-slate-200 shadow-xs overflow-x-auto">
         <button
           onClick={() => setSelectedDay('all')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
@@ -271,8 +266,8 @@ export default function ItineraryView({ trip }) {
       </div>
 
       {/* Activities Timeline / Cards List */}
-      <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-6">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+      <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm space-y-6">
+        <div className="flex items-center justify-between border-b border-slate-200 pb-3">
           <div className="flex items-center space-x-2">
             <Clock className="w-5 h-5 text-teal-600" />
             <h3 className="font-bold text-slate-800 text-sm">
@@ -291,7 +286,7 @@ export default function ItineraryView({ trip }) {
             ))}
           </div>
         ) : filteredItems.length === 0 ? (
-          <div className="p-12 text-center space-y-3 border-2 border-dashed border-slate-200 rounded-3xl">
+          <div className="p-12 text-center space-y-3 border-2 border-dashed border-slate-200 rounded-xl">
             <div className="w-12 h-12 bg-teal-50 text-teal-600 rounded-full flex items-center justify-center mx-auto">
               <Calendar className="w-6 h-6" />
             </div>
@@ -312,7 +307,7 @@ export default function ItineraryView({ trip }) {
             {filteredItems.map((item, idx) => (
               <div
                 key={item.id}
-                className="relative pl-10 p-4 rounded-2xl border border-slate-100 hover:border-teal-200 transition-all bg-slate-50/50 hover:bg-white hover:shadow-md group space-y-2"
+                className="relative pl-10 p-4 rounded-2xl border border-slate-200 hover:border-teal-200 transition-all bg-slate-50/50 hover:bg-white hover:shadow-md group space-y-2"
               >
                 {/* Timeline Node Dot */}
                 <div className="absolute left-2.5 top-5 w-3.5 h-3.5 rounded-full bg-teal-500 ring-4 ring-teal-100 group-hover:scale-110 transition-transform"></div>
@@ -378,7 +373,7 @@ export default function ItineraryView({ trip }) {
                 )}
 
                 {item.notes && (
-                  <div className="flex items-start space-x-1.5 text-xs text-slate-500 italic bg-white p-2.5 rounded-xl border border-slate-100">
+                  <div className="flex items-start space-x-1.5 text-xs text-slate-500 italic bg-white p-2.5 rounded-xl border border-slate-200">
                     <FileText className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
                     <span>{item.notes}</span>
                   </div>
@@ -392,8 +387,8 @@ export default function ItineraryView({ trip }) {
       {/* Add / Edit Activity Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden">
-            <div className="bg-gradient-to-r from-teal-600 to-emerald-600 px-6 py-4 text-white flex justify-between items-center">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full overflow-hidden">
+            <div className="bg-white border-b border-slate-200 px-6 py-4 text-slate-900 flex justify-between items-center">
               <div className="flex items-center space-x-2">
                 <Sparkles className="w-5 h-5 text-amber-300" />
                 <h3 className="font-bold text-base">
