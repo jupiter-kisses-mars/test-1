@@ -127,30 +127,30 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
   
   const currentCollaborators = activeTrip?.members?.length > 0
     ? activeTrip.members.map((m) => {
-        // Find matching user object or construct from member
-        const userObj = users.find((u) => u.id === m.id || (u.name && u.name === m.full_name) || (u.full_name && u.full_name === m.full_name));
-        const displayName = m.full_name || (userObj ? (userObj.name || userObj.full_name) : 'Collaborator');
         return {
-          id: userObj ? userObj.id : m.id,
-          name: displayName,
+          id: m.id,
+          name: m.full_name || 'Collaborator',
           email: m.email,
           role: m.role
         };
       })
-    : users.map((u) => ({ id: u.id, name: u.name || u.full_name || 'Collaborator', role: 'member' }));
+    : [];
 
 
-  // Auto-initialize selected participants when collaborators change
+  // Auto-initialize selected participants when collaborators change or trip changes
   useEffect(() => {
-    if (currentCollaborators.length > 0 && Object.keys(selectedParticipants).length === 0) {
+    if (currentCollaborators.length > 0) {
       const initialParts = {};
       currentCollaborators.forEach((c) => {
         initialParts[c.id] = { selected: true, share: '' };
       });
       setSelectedParticipants(initialParts);
-      if (!paidBy) setPaidBy(currentCollaborators[0].id.toString());
+      setPaidBy(currentCollaborators[0].id.toString());
+    } else {
+      setSelectedParticipants({});
+      setPaidBy('');
     }
-  }, [currentCollaborators]);
+  }, [selectedTripId, currentCollaborators.length]);
 
   // Handle participant selection toggle
   const toggleParticipant = (userId) => {
@@ -187,32 +187,6 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
     });
   };
 
-  // Create User / Member
-  const handleCreateUser = async (e) => {
-    e.preventDefault();
-    if (!newMemberName.trim()) return;
-    setAddingUser(true);
-    setError('');
-    setSuccessMsg('');
-    try {
-      const user = await createUser({ name: newMemberName.trim() });
-      
-      // If a trip is active, also add as trip member if possible
-      if (activeTrip && user.email) {
-        await addTripMember(activeTrip.id, user.email).catch(() => {});
-      }
-
-      setNewMemberName('');
-      setSuccessMsg(`Collaborator '${user.name}' added successfully!`);
-      await loadAllData();
-    } catch (err) {
-      setError(err.message || 'Failed to add member');
-    } finally {
-      setAddingUser(false);
-    }
-  };
-
-  // Delete User
   const handleDeleteUser = async (id, name) => {
     if (!window.confirm(`Delete collaborator '${name}'? This will remove their expenses.`)) return;
     try {
@@ -314,44 +288,26 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
       );
 
   return (
-    <div className="space-y-8 font-sans text-slate-800">
-      {/* Trip & Context Selector Bar */}
-      <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div className="flex items-center space-x-3">
-          <div className="p-3 bg-teal-50 text-teal-600 rounded-2xl">
-            <MapPin className="w-6 h-6" />
-          </div>
-          <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Select Trip Context</label>
-            <select
-              value={selectedTripId}
-              onChange={(e) => {
-                setSelectedTripId(e.target.value);
-                setSelectedCollaboratorFilter('all');
-              }}
-              className="block font-extrabold text-slate-800 text-lg bg-transparent border-none focus:ring-0 cursor-pointer p-0 pr-6"
-            >
-              {trips.map((t) => (
-                <option key={t.id} value={t.id}>
-                  Trip: {t.title} ({t.destination})
-                </option>
-              ))}
-              <option value="">All Users / Global Mode</option>
-            </select>
-          </div>
+    <div className="bg-white rounded-xl border border-slate-200 p-6 md:p-8 space-y-8 font-sans text-slate-900 shadow-sm">
+      {/* Ledger Header */}
+      <div className="bg-transparent pb-4 border-b border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight">Expense Ledger</h2>
+          <p className="text-sm text-slate-500">Track and split trip costs securely.</p>
         </div>
 
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-4">
           <div className="text-right">
             <p className="text-xs text-slate-400 font-medium">Trip Collaborators</p>
             <p className="text-sm font-bold text-teal-700">{currentCollaborators.length} Active Members</p>
           </div>
+          <div className="h-8 w-px bg-slate-200"></div>
           <button
             onClick={loadAllData}
-            title="Refresh All Data"
-            className="flex items-center space-x-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition-colors cursor-pointer"
+            title="Refresh Ledger"
+            className="flex items-center space-x-1.5 px-3 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition-colors cursor-pointer"
           >
-            <RefreshCw className={`w-4 h-4 text-teal-600 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 text-slate-500 ${loading ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
           </button>
         </div>
@@ -359,7 +315,7 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
 
       {/* Top Banner Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
+        <div className="bg-transparent py-5 border-b border-slate-200 last:border-0 flex items-center space-x-4">
           <div className="p-3 bg-teal-50 text-teal-600 rounded-xl">
             <Users className="w-6 h-6" />
           </div>
@@ -369,7 +325,7 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
+        <div className="bg-transparent py-5 border-b border-slate-200 last:border-0 flex items-center space-x-4">
           <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
             <Receipt className="w-6 h-6" />
           </div>
@@ -379,7 +335,7 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
+        <div className="bg-transparent py-5 border-b border-slate-200 last:border-0 flex items-center space-x-4">
           <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
             <DollarSign className="w-6 h-6" />
           </div>
@@ -391,7 +347,7 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div className="bg-transparent py-5 border-b border-slate-200 last:border-0 flex items-center justify-between">
           <div>
             <p className="text-xs text-slate-400 font-semibold uppercase">Backend Engine</p>
             <span className="inline-flex items-center text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full mt-1">
@@ -404,14 +360,14 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
 
       {/* Notifications */}
       {error && (
-        <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold rounded-2xl flex items-center space-x-2">
+        <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold rounded-xl flex items-center space-x-2">
           <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
           <span>{error}</span>
         </div>
       )}
 
       {successMsg && (
-        <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold rounded-2xl flex items-center space-x-2">
+        <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold rounded-xl flex items-center space-x-2">
           <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
           <span>{successMsg}</span>
         </div>
@@ -420,7 +376,7 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
       {/* Main Grid: Group Collaborators & Expense Creation */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column: Group Members Dropdown & List */}
-        <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm space-y-6">
+        <div className="bg-transparent py-8 border-b border-slate-200 last:border-0 space-y-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Users className="w-5 h-5 text-teal-600" />
@@ -448,36 +404,7 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
             </select>
           </div>
 
-          {/* Add New Collaborator Form */}
-          <form onSubmit={handleCreateUser} className="space-y-2 pt-2 border-t border-slate-200">
-            <label className="text-xs font-semibold text-slate-600">Add New Collaborator</label>
-            <div className="flex space-x-2">
-              <input
-                type="text"
-                list="db-users-list"
-                placeholder="Type name or choose existing..."
-                value={newMemberName}
-                onChange={(e) => setNewMemberName(e.target.value)}
-                className="flex-1 px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-800 bg-white placeholder-slate-400 font-medium"
-                required
-              />
-              <datalist id="db-users-list">
-                {users.map((u) => (
-                  <option key={u.id} value={u.name || u.full_name}>
-                    {u.email ? `${u.name || u.full_name} (${u.email})` : (u.name || u.full_name)}
-                  </option>
-                ))}
-              </datalist>
-              <button
-                type="submit"
-                disabled={addingUser}
-                className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold rounded-xl flex items-center space-x-1 transition-colors disabled:opacity-50 cursor-pointer"
-              >
-                <Plus className="w-4 h-4" />
-                <span>{addingUser ? '...' : 'Add'}</span>
-              </button>
-            </div>
-          </form>
+          
 
 
           {/* Collaborators List */}
@@ -488,7 +415,7 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
               currentCollaborators.map((c) => (
                 <div
                   key={c.id}
-                  className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 hover:bg-slate-100 transition-colors"
+                  className="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors"
                 >
                   <div className="flex items-center space-x-3">
                     <div className="w-8 h-8 rounded-full bg-teal-700 text-white font-medium text-xs flex items-center justify-center">
@@ -514,7 +441,7 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
         </div>
 
         {/* Right Column: Add Expense Form */}
-        <div className="lg:col-span-2 bg-white rounded-xl p-6 border border-slate-200 shadow-sm space-y-6">
+        <div className="lg:col-span-2 bg-transparent py-8 border-b border-slate-200 last:border-0 space-y-6">
           <div className="flex items-center space-x-2 border-b border-slate-200 pb-3">
             <Calculator className="w-5 h-5 text-teal-600" />
             <h3 className="font-bold text-slate-800 text-sm">Add Expense & Preview Calculation</h3>
@@ -669,7 +596,7 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
 
           {/* Live Preview Display */}
           {previewResult && (
-            <div className="p-4 bg-teal-50/70 border border-teal-200 rounded-2xl space-y-2 animate-fadeIn">
+            <div className="p-4 bg-teal-50/70 border border-teal-200 rounded-xl space-y-2 animate-fadeIn">
               <div className="flex justify-between items-center text-xs font-bold text-teal-900 border-b border-teal-200/60 pb-2">
                 <span>Calculation Preview ({previewResult.split_type.toUpperCase()} SPLIT)</span>
                 <span>Total: ₹{previewResult.amount}</span>
@@ -694,7 +621,7 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
       {/* Grid: Balances & Simplified Settlements */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Balances Card */}
-        <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm space-y-4">
+        <div className="bg-transparent py-8 border-b border-slate-200 last:border-0 space-y-4">
           <div className="flex items-center justify-between border-b border-slate-200 pb-3">
             <div className="flex items-center space-x-2">
               <PieChart className="w-5 h-5 text-teal-600" />
@@ -715,7 +642,7 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
                 return (
                   <div
                     key={b.user_id}
-                    className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 hover:bg-slate-100 transition-colors"
+                    className="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors"
                   >
                     <div className="flex items-center space-x-3">
                       <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center">
@@ -746,7 +673,7 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
         </div>
 
         {/* Simplified Settlements Card */}
-        <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm space-y-4">
+        <div className="bg-transparent py-8 border-b border-slate-200 last:border-0 space-y-4">
           <div className="flex items-center justify-between border-b border-slate-200 pb-3">
             <div className="flex items-center space-x-2">
               <ArrowRight className="w-5 h-5 text-teal-600" />
@@ -783,7 +710,7 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
       </div>
 
       {/* Expenses History List */}
-      <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm space-y-4">
+      <div className="bg-transparent py-8 border-b border-slate-200 last:border-0 space-y-4">
         <div className="flex items-center justify-between border-b border-slate-200 pb-3">
           <div className="flex items-center space-x-2">
             <Receipt className="w-5 h-5 text-teal-600" />
@@ -808,7 +735,7 @@ export default function ExpenseCalculatorView({ tripId: propTripId = null }) {
             {displayedExpenses.map((exp) => (
               <div
                 key={exp.id}
-                className="p-4 rounded-2xl border border-slate-200 hover:border-teal-200 transition-colors space-y-3 bg-slate-50/50"
+                className="p-4 rounded-xl border border-slate-200 hover:border-teal-200 transition-colors space-y-3 bg-slate-50/50"
               >
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                   <div>

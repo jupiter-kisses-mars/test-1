@@ -259,9 +259,9 @@ export default function PlacesView({ tripId = null, tripTitle = null }) {
   }, [places]);
 
   return (
-    <div className="space-y-8 font-sans text-slate-800 animate-fadeIn">
+    <div className="bg-white rounded-xl border border-slate-200 p-6 md:p-8 space-y-8 font-sans text-slate-900 shadow-sm animate-fadeIn">
       {/* Top Header & Add Place Action */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-transparent py-4 border-b border-slate-200">
         <div>
           <div className="flex items-center space-x-2">
             <div className="p-2 bg-teal-700 text-white rounded-lg shadow-sm">
@@ -282,7 +282,7 @@ export default function PlacesView({ tripId = null, tripTitle = null }) {
           <button
             onClick={loadData}
             title="Refresh Places"
-            className="p-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer"
+            className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-teal-600' : ''}`} />
           </button>
@@ -302,14 +302,14 @@ export default function PlacesView({ tripId = null, tripTitle = null }) {
 
       {/* Notifications */}
       {error && (
-        <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold rounded-2xl flex items-center space-x-2">
+        <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold rounded-xl flex items-center space-x-2">
           <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
           <span>{error}</span>
         </div>
       )}
 
       {successMsg && (
-        <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold rounded-2xl flex items-center space-x-2">
+        <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold rounded-xl flex items-center space-x-2">
           <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
           <span>{successMsg}</span>
         </div>
@@ -318,8 +318,8 @@ export default function PlacesView({ tripId = null, tripTitle = null }) {
       {/* Dashboard Summary Statistics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {/* Total Places */}
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
-          <div className="p-3 bg-teal-50 text-teal-600 rounded-2xl">
+        <div className="flex items-center space-x-3">
+          <div className="p-2 bg-teal-50 text-teal-600 rounded-xl">
             <Layers className="w-6 h-6" />
           </div>
           <div>
@@ -329,8 +329,8 @@ export default function PlacesView({ tripId = null, tripTitle = null }) {
         </div>
 
         {/* Visited Places */}
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
-          <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl">
+        <div className="flex items-center space-x-3">
+          <div className="p-2 bg-emerald-50 text-emerald-600 rounded-xl">
             <CheckCircle2 className="w-6 h-6" />
           </div>
           <div>
@@ -340,8 +340,8 @@ export default function PlacesView({ tripId = null, tripTitle = null }) {
         </div>
 
         {/* Want to Visit */}
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
-          <div className="p-3 bg-amber-50 text-amber-500 rounded-2xl">
+        <div className="flex items-center space-x-3">
+          <div className="p-2 bg-amber-50 text-amber-500 rounded-xl">
             <Bookmark className="w-6 h-6" />
           </div>
           <div>
@@ -351,8 +351,8 @@ export default function PlacesView({ tripId = null, tripTitle = null }) {
         </div>
 
         {/* Average Rating */}
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
-          <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl">
+        <div className="flex items-center space-x-3">
+          <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl">
             <Star className="w-6 h-6 fill-amber-400 text-amber-400" />
           </div>
           <div>
@@ -373,7 +373,7 @@ export default function PlacesView({ tripId = null, tripTitle = null }) {
             <div
               key={cat}
               onClick={() => setSelectedCategory(selectedCategory === cat ? 'All' : cat)}
-              className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
+              className={`p-3.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
                 selectedCategory === cat
                   ? 'bg-teal-50/80 border-teal-300 ring-2 ring-teal-200'
                   : 'bg-white border-slate-200 hover:border-slate-200 shadow-xs'
@@ -392,7 +392,7 @@ export default function PlacesView({ tripId = null, tripTitle = null }) {
       </div>
 
       {/* Search, Category Filters, Status Filters, & Sort Bar */}
-      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+      <div className="bg-transparent py-4 border-b border-slate-200 space-y-4">
         {/* Search Input & Sort Dropdown */}
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
@@ -402,7 +402,7 @@ export default function PlacesView({ tripId = null, tripTitle = null }) {
               placeholder="Search places by name, location, or notes..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 text-xs font-medium rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 bg-slate-50/60 placeholder-slate-400"
+              className="w-full pl-10 pr-4 py-2.5 text-xs font-medium rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 bg-slate-50/60 placeholder-slate-400"
             />
           </div>
 
@@ -411,7 +411,7 @@ export default function PlacesView({ tripId = null, tripTitle = null }) {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="px-3.5 py-2.5 text-xs font-bold rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white text-slate-700 cursor-pointer"
+              className="px-3.5 py-2.5 text-xs font-bold rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white text-slate-700 cursor-pointer"
             >
               {SORT_OPTIONS.map((opt) => (
                 <option key={opt.id} value={opt.id}>
@@ -568,7 +568,7 @@ export default function PlacesView({ tripId = null, tripTitle = null }) {
 
                     {/* Personal Notes */}
                     {place.notes && (
-                      <p className="text-xs text-slate-600 mt-3 p-3 bg-slate-50 rounded-2xl italic line-clamp-2 border border-slate-200">
+                      <p className="text-xs text-slate-600 mt-3 p-2 bg-slate-50 rounded-xl italic line-clamp-2 border border-slate-200">
                         "{place.notes}"
                       </p>
                     )}
@@ -671,7 +671,7 @@ export default function PlacesView({ tripId = null, tripTitle = null }) {
               return (
                 <div
                   key={idx}
-                  className="bg-white/10 hover:bg-white/15 backdrop-blur-md p-4 rounded-2xl border border-white/10 flex flex-col justify-between space-y-3 transition-all"
+                  className="bg-white/10 hover:bg-white/15 backdrop-blur-md p-4 rounded-xl border border-white/10 flex flex-col justify-between space-y-3 transition-all"
                 >
                   <div>
                     <div className="flex items-center justify-between mb-1">

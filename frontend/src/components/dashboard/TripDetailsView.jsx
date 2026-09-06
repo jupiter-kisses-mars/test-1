@@ -73,7 +73,7 @@ export default function TripDetailsView({ trip, currentUser, onBack, onUpdateTri
       </div>
 
       {/* Navigation Tabs Bar */}
-      <div className="flex space-x-2 border-b border-slate-200 pb-2 overflow-x-auto">
+      <div className="sticky top-16 z-30 bg-slate-50 pt-4 pb-2 flex space-x-2 border-b border-slate-200 overflow-x-auto">
         {[
           { id: 'overview', label: 'Overview', icon: Compass },
           { id: 'places', label: 'Places', icon: MapPin },
@@ -127,7 +127,7 @@ export default function TripDetailsView({ trip, currentUser, onBack, onUpdateTri
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div
                   onClick={() => setActiveTab('places')}
-                  className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all cursor-pointer group"
+                  className="p-5 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer group"
                 >
                   <div className="p-2.5 bg-slate-50 text-teal-700 rounded-lg inline-block mb-3 group-hover:bg-teal-50 transition-colors">
                     <MapPin className="w-5 h-5" />
@@ -140,7 +140,7 @@ export default function TripDetailsView({ trip, currentUser, onBack, onUpdateTri
 
                 <div
                   onClick={() => setActiveTab('expenses')}
-                  className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all cursor-pointer group"
+                  className="p-5 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer group"
                 >
                   <div className="p-2.5 bg-slate-50 text-teal-700 rounded-lg inline-block mb-3 group-hover:bg-teal-50 transition-colors">
                     <DollarSign className="w-5 h-5" />
@@ -153,7 +153,7 @@ export default function TripDetailsView({ trip, currentUser, onBack, onUpdateTri
 
                 <div
                   onClick={() => setActiveTab('itinerary')}
-                  className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all cursor-pointer group"
+                  className="p-5 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer group"
                 >
                   <div className="p-2.5 bg-slate-50 text-teal-700 rounded-lg inline-block mb-3 group-hover:bg-teal-50 transition-colors">
                     <Map className="w-5 h-5" />
@@ -166,7 +166,7 @@ export default function TripDetailsView({ trip, currentUser, onBack, onUpdateTri
 
                 <div
                   onClick={() => setActiveTab('chat')}
-                  className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all cursor-pointer group"
+                  className="p-5 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer group"
                 >
                   <div className="p-2.5 bg-slate-50 text-teal-700 rounded-lg inline-block mb-3 group-hover:bg-teal-50 transition-colors">
                     <MessageSquare className="w-5 h-5" />
@@ -182,7 +182,7 @@ export default function TripDetailsView({ trip, currentUser, onBack, onUpdateTri
 
           {/* Sidebar: Collaborators & Invites */}
           <div className="space-y-6">
-            <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm space-y-4">
+            <div className="bg-slate-50 rounded-xl p-6 space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <Users className="w-5 h-5 text-teal-700" />

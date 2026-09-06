@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Compass, LogOut, User, RefreshCw, DollarSign, Map, Check, X, Clock, MapPin } from 'lucide-react';
+import { Plus, Compass, LogOut, User, RefreshCw, DollarSign, Map, Check, X, Clock, MapPin, Calendar, Bell } from 'lucide-react';
 import { fetchTrips, createTrip, deleteTrip, respondToTripInvitation } from '../../api/trips';
 import TripCard from './TripCard';
 import CreateTripModal from './CreateTripModal';
@@ -77,7 +77,7 @@ export default function DashboardView({ user, onLogout }) {
   if (selectedTrip) {
     return (
       <div className="min-h-screen bg-slate-50 p-4 md:p-8 font-sans">
-        <div className="max-w-6xl mx-auto">
+        <div className="w-[94%] max-w-[1600px] mx-auto">
           <TripDetailsView
             trip={selectedTrip}
             currentUser={user}
@@ -95,55 +95,17 @@ export default function DashboardView({ user, onLogout }) {
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800 pb-12">
       {/* Top Navbar */}
       <header className="bg-white/80 backdrop-blur-md sticky top-0 z-40 border-b border-slate-100">
-        <div className="max-w-6xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
+        <div className="w-[94%] max-w-[1600px] mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center space-x-6">
             <div className="flex items-center space-x-2">
-              <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-teal-600 to-emerald-500 flex items-center justify-center shadow-md">
+              <div className="w-9 h-9 rounded-xl bg-teal-700 flex items-center justify-center shadow-sm">
                 <Compass className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-teal-700 to-emerald-600 bg-clip-text text-transparent">
+              <span className="text-xl font-extrabold text-slate-900 tracking-tight">
                 TripMate
               </span>
             </div>
 
-            {/* Navigation Tabs */}
-            <div className="flex space-x-1 bg-slate-100 p-1 rounded-lg">
-              <button
-                onClick={() => setViewTab('trips')}
-                className={`flex items-center space-x-1.5 px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                  viewTab === 'trips'
-                    ? 'bg-white text-slate-900 shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                <Map className={`w-4 h-4 ${viewTab === 'trips' ? 'text-teal-700' : ''}`} />
-                <span>Trips</span>
-              </button>
-
-              <button
-                onClick={() => setViewTab('places')}
-                className={`flex items-center space-x-1.5 px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                  viewTab === 'places'
-                    ? 'bg-white text-slate-900 shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                <MapPin className={`w-4 h-4 ${viewTab === 'places' ? 'text-teal-700' : ''}`} />
-                <span>Places</span>
-              </button>
-
-              <button
-                onClick={() => setViewTab('expenses')}
-                className={`flex items-center space-x-1.5 px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                  viewTab === 'expenses'
-                    ? 'bg-white text-slate-900 shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                <DollarSign className={`w-4 h-4 ${viewTab === 'expenses' ? 'text-teal-700' : ''}`} />
-                <span>Expenses</span>
-              </button>
-            </div>
           </div>
 
           <div className="flex items-center space-x-4">
@@ -163,13 +125,46 @@ export default function DashboardView({ user, onLogout }) {
       </header>
 
       {/* Main Dashboard Hero & Content */}
-      <main className="max-w-6xl mx-auto px-4 md:px-8 pt-8 space-y-8">
-        {viewTab === 'expenses' ? (
-          <ExpenseCalculatorView />
-        ) : viewTab === 'places' ? (
-          <PlacesView />
-        ) : (
-          <>
+      <main className="w-[94%] max-w-[1600px] mx-auto px-4 md:px-8 pt-8 space-y-8">
+        <>
+            {/* Global Dashboard KPIs */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Total Trips */}
+              <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
+                <div className="p-3 bg-teal-50 text-teal-600 rounded-lg">
+                  <Map className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider">Total Trips</p>
+                  <p className="text-2xl font-bold text-slate-900">{trips.length}</p>
+                </div>
+              </div>
+              
+              {/* Upcoming Trips */}
+              <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
+                <div className="p-3 bg-indigo-50 text-indigo-600 rounded-lg">
+                  <Calendar className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider">Upcoming Trips</p>
+                  <p className="text-2xl font-bold text-slate-900">
+                    {trips.filter(t => new Date(t.start_date) > new Date(new Date().setHours(0,0,0,0))).length}
+                  </p>
+                </div>
+              </div>
+
+              {/* Pending Invites */}
+              <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
+                <div className="p-3 bg-amber-50 text-amber-600 rounded-lg">
+                  <Bell className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider">Pending Invites</p>
+                  <p className="text-2xl font-bold text-slate-900">{pendingInvitations.length}</p>
+                </div>
+              </div>
+            </div>
+
             {/* Pending Invitations Section */}
             {pendingInvitations.length > 0 && (
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 space-y-3">
@@ -308,7 +303,6 @@ export default function DashboardView({ user, onLogout }) {
               </div>
             )}
           </>
-        )}
       </main>
 
       {/* Modal */}

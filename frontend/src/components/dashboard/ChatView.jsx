@@ -67,23 +67,23 @@ export default function ChatView({ trip, currentUser }) {
   return (
     <div className="space-y-6 font-sans text-slate-800">
       {/* Banner */}
-      <div className="bg-gradient-to-r from-purple-800 via-indigo-700 to-purple-900 rounded-3xl p-6 md:p-8 text-white shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center space-x-2 text-purple-200 text-xs font-bold uppercase tracking-wider">
-            <Sparkles className="w-4 h-4 text-amber-300" />
+      <div className="bg-white border border-slate-200 rounded-xl p-6 md:p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-sm">
+        <div className="space-y-1.5 max-w-xl">
+          <div className="flex items-center space-x-2 text-indigo-600 text-xs font-bold uppercase tracking-wider">
+            <Sparkles className="w-4 h-4 text-amber-500" />
             <span>Collaboration Room</span>
           </div>
-          <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight">
+          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
             {trip.title} Group Chat
           </h2>
-          <p className="text-purple-100 text-xs">
+          <p className="text-slate-600 text-sm">
             Discuss plans, share recommendations, and align on expenses in real-time.
           </p>
         </div>
 
         <button
           onClick={() => loadMessages(false)}
-          className="flex items-center space-x-1.5 px-3.5 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-xl backdrop-blur-md transition-colors cursor-pointer"
+          className="flex items-center space-x-1.5 px-3.5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-sm font-medium rounded-lg transition-colors cursor-pointer"
         >
           <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           <span>Sync</span>
@@ -98,9 +98,9 @@ export default function ChatView({ trip, currentUser }) {
       )}
 
       {/* Main Chat Container */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden divide-y lg:divide-y-0 lg:divide-x divide-slate-200">
         {/* Chat Feed */}
-        <div className="lg:col-span-3 bg-white rounded-3xl border border-slate-100 shadow-sm flex flex-col h-[520px]">
+        <div className="lg:col-span-3 flex flex-col h-[600px] bg-slate-50/30">
           {/* Header */}
           <div className="p-4 border-b border-slate-100 flex items-center justify-between">
             <div className="flex items-center space-x-2">
@@ -196,7 +196,7 @@ export default function ChatView({ trip, currentUser }) {
         </div>
 
         {/* Sidebar: Group Members */}
-        <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-4 h-fit">
+        <div className="p-6 space-y-4 h-full bg-white">
           <div className="flex items-center space-x-2 border-b border-slate-100 pb-3">
             <Users className="w-4 h-4 text-indigo-600" />
             <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider">Group Members</h3>
