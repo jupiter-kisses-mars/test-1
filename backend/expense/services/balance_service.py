@@ -14,7 +14,12 @@ from expense.utils.money import round_money
 
 
 def calculate_user_balances(db: Session, trip_id: Optional[int] = None) -> BalancesResponse:
-    users = db.query(User).order_by(User.id.asc()).all()
+    from models import TripMember
+    user_query = db.query(User).order_by(User.id.asc())
+    if trip_id is not None:
+        user_query = user_query.join(TripMember, User.id == TripMember.user_id).filter(TripMember.trip_id == trip_id)
+    users = user_query.all()
+    
     user_balances: Dict[int, Decimal] = {u.id: Decimal("0.00") for u in users}
     user_names: Dict[int, str] = {u.id: (getattr(u, "name", None) or getattr(u, "full_name", None) or f"User #{u.id}") for u in users}
 
@@ -24,12 +29,18 @@ def calculate_user_balances(db: Session, trip_id: Optional[int] = None) -> Balan
     expenses = query.all()
 
     for exp in expenses:
-        if exp.paid_by in user_balances:
-            user_balances[exp.paid_by] += Decimal(str(exp.amount))
-        
+        if exp.paid_by not in user_balances:
+            continue  # Skip invalid/orphaned data where payer is not a trip member
+            
+        valid_shares_sum = Decimal("0.00")
         for part in exp.participants:
             if part.user_id in user_balances:
-                user_balances[part.user_id] -= Decimal(str(part.share_amount))
+                share = Decimal(str(part.share_amount))
+                valid_shares_sum += share
+                user_balances[part.user_id] -= share
+                
+        # Credit the payer ONLY for the sum of valid shares, keeping the ledger perfectly zero-sum
+        user_balances[exp.paid_by] += valid_shares_sum
 
     result: List[UserBalance] = []
     for uid, u_name in user_names.items():
